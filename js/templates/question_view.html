@@ -1,0 +1,45 @@
+<div>
+
+	<h2 class='title'>
+		<span class='title-string'><%= title %></span>
+		<% if(is_answered && accepted_answer_id !== 0) { %>
+			<span class='answered pictos-icon'>3</span>
+		<% } else if (is_answered) { %>
+			<span class='answered-not-accepted pictos-icon'>!</span>
+		<% } else { %>
+			<span class='unanswered pictos-icon'>.</span>
+		<% } %>
+		<span class='starred pictos-icon'>S</span>
+		<span class="score"> <%= score %> </span>
+	</h2>
+	<div class="tags">
+	<% _.each(tags, function(tag) { %> 
+	    <span class='label <% if(tag===App.get("cache").current_tag) { %>label-info<% } else { %>label-inverse<% } %>'><a href='#/tag/<%=tag %>'><%= tag %></a></span>
+	<% }); %>
+	</div>
+	<div class="viewcount">
+		<span class='pictos-icon'>E</span>
+		<%= Format.comma(view_count) %>
+	</div>
+	<div class="answers">
+		<span class='pictos-icon'>W</span>
+		<%= Format.comma(answer_count) %>
+	</div>
+	<div class="created">
+		<%= Format.epoch(creation_date) %>
+	</div>
+</div>
+<div class="qa-container">
+	<strong>Question</strong>
+	<div class="question">
+
+	</div>
+	<strong>Accepted Answer</strong>
+	<div class="answer">
+
+	</div>
+	<div>
+		<hr/>
+		<a href='<%= link %>' target="_blank"><%= title %> on StackOverflow &#10138;</a>
+	</div>
+</div>

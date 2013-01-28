@@ -1,0 +1,18 @@
+<div class='image-container'>
+	<img class="img-polaroid" src='<%= profile_image %>'> 
+</div>
+
+<h3 class='display-name'> 
+	<span><%= display_name %></span>
+	<a class='pull-right' href='<%= link %>' target="_blank"> &#10138; </a> 
+</h3>
+
+<div class='acceptance'> 
+	<span class='pictos-icon'>2</span> 
+	<%= accept_rate %>%
+</div>
+<div class='rep'>
+<!-- 	<span class='pictos-icon'>O</span>  -->
+	<%= Format.comma(reputation) %>
+</div>
+

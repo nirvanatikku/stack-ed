@@ -1,0 +1,100 @@
+<div class="row row-fluid span11">
+
+	<div class="intro-message">
+
+		<div class="hero-unit">
+	        <h1 class="page-header">Stack-Ed</h1>
+	        <br/>
+	        <img src='/img/screenshot.png' width="600px">
+	        <p>
+	        	<br/>
+	        <p>
+	        <big>The <span class='underline'>most reputable StackOverflow contributors</span> and their <span class='underline'>accepted answers</span> to questions.</big>
+	    	</p>
+	        <br/>
+	        <div class="pull-right">
+				<a href="https://twitter.com/share" class="twitter-share-button" data-via="ntikku">Tweet</a>
+				<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+					        <br/>
+					        <!-- Place this tag where you want the +1 button to render. -->
+				<div class="g-plusone"></div>
+				<!-- Place this tag after the last +1 button tag. -->
+				<script type="text/javascript">
+				  (function() {
+				    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+				    po.src = 'https://apis.google.com/js/plusone.js';
+				    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+				  })();
+				</script>
+
+
+
+			</div>
+	        <p><a class="btn btn-info btn-large start">Get Started &raquo; </a></p>
+      </div>
+
+	</div>
+
+	<div class="ui-tags-container js-tags-container span2">
+
+		<h1>Pick a Topic</h1>
+		<small class='ui-sort-info'>Sorted by Popularity</small>
+
+		<br/>
+
+		<div class="js-tags">
+
+		</div>
+
+		<div class="js-load-more-tags ui-load-more">
+			Load More Tags..
+		</div>
+
+	</div>
+
+	<div class="ui-answerers-container js-answerers-container span2">
+
+		<h1>Top Answerers</h1>
+		<small class='ui-sort-info'>Sorted by Reputation</small>
+		<br/>
+
+		<div class="js-top-answerers">
+
+		</div>
+
+		<div class="js-load-more-answerers ui-load-more">
+			Load More Answerers..
+		</div>
+
+	</div>
+
+	<div class="ui-questions-container js-questions-container span7">
+
+		<h1>
+			Stack Overflow Questions
+			<div class="ui-filter-criteria js-filter-criteria">
+			</div>
+		</h1>
+
+		<small class='ui-sort-info'>Sorted by Views, Answer Count</small>
+
+		<br/>
+
+		<div class="js-questions">
+
+		</div>
+<!--  TODO: figure out why pagination isn't working properly.
+		<div class="js-load-more-questions ui-load-more">
+			Load More Questions..
+		</div> -->
+
+	</div>
+
+{% if user %}
+	<script>
+	User = {};
+	User.nickname = "{{ user.nickname }}";
+	User.starred_questions = [{% for q in user.starred_questions %}{% if forloop.counter > 1 %}{{ ',' }}{% endif %}"{{ q.question.question_id }}"{% endfor %}];
+	</script>
+{% endif %}
+</div>
