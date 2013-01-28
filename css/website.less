@@ -59,11 +59,11 @@
 @questionBoxShadowColor:rgba(250,250,250,0.7);
 
 html, body { height:100%; }
-body { position:relative; background:@background; line-height:20px; width:100%; font-family: @mainFont,'Helvetica Neue','Helvetica','Arial';}
-h1 { color:@h1color; font-size: 26px; font-weight:bolder; margin:20px 0px; white-space:nowrap;  }
+body { position:relative; background:@background; line-height:20px; width:100%; font-family: 'Helvetica Neue','Helvetica','Arial';}
+h1 { color:@h1color; font-family: "proxima-nova",sans-serif; font-size: 26px; font-weight:600; margin:20px 0px; white-space:nowrap;  }
 h1 small { font-size:24px; letter-spacing:0px; }
 
-.main-container { 
+.main-container {
 	position:relative; left:0px; right:0px; margin:0 auto; height:100%; width:100%; margin:20px 10px;
 }
 .hidden { display:none; }
@@ -80,14 +80,14 @@ h1 small { font-size:24px; letter-spacing:0px; }
 
 .underline { color:@blueColor; }
 
-.intro-message { margin:0 auto; margin-top:80px; margin-right:60px; 
+.intro-message { margin:0 auto; margin-top:80px; margin-right:60px;
 	.hero-unit { background:#fff; color:#2f2f2f; }
-	ul { font-size:1.25em; 
+	ul { font-size:1.25em;
 		li { margin-bottom:10px; }
 	}
 }
 
-.pictos-icon { 
+.pictos-icon {
 	cursor:pointer; font-family: "pictos"; font-size:1em; color:#222;
 	&:hover { }
 }
@@ -108,28 +108,28 @@ h1 small { font-size:24px; letter-spacing:0px; }
 .ui-user,
 .ui-tag,
 .ui-question,
-.ui-question .starred { 
-	-moz-transition: all 0.4s ease-in-out; 
-	-o-transition: all 0.4s ease-in-out; 
-	-ms-transition: all 0.4s ease-in-out; 
-	-webkit-transition: all 0.4s ease-in-out; 
-	transition: all 0.4s ease-in-out; 
+.ui-question .starred {
+	-moz-transition: all 0.4s ease-in-out;
+	-o-transition: all 0.4s ease-in-out;
+	-ms-transition: all 0.4s ease-in-out;
+	-webkit-transition: all 0.4s ease-in-out;
+	transition: all 0.4s ease-in-out;
 }
 
 .ui-user-info-container a { color:white; }
 
 .ui-scrollable { max-height:90%; height:90%; overflow-y:auto; }
 
-.ui-sort-info { margin-left: 4px; line-height:2em; }	
+.ui-sort-info { margin-left: 4px; line-height:2em; }
 
-.ui-user { position:relative; margin:0px 6px 6px 0px; width: 100%; height: @userHeight; background: @userBackgroundColor; padding-top:20px; cursor:pointer; 
+.ui-user { position:relative; margin:0px 6px 6px 0px; width: 100%; height: @userHeight; background: @userBackgroundColor; padding-top:20px; cursor:pointer;
 	.box-shadow(0px 0px 3px @userBoxShadowColor);
 	&:hover { opacity:1; background:@userHoverBackgroundColor; }
-	&:active { 
-		.box-shadow(0 1px 6px @userActiveBoxShadowColor inset); 
+	&:active {
+		.box-shadow(0 1px 6px @userActiveBoxShadowColor inset);
 	}
 
-	.image-container { text-align:center; 
+	.image-container { text-align:center;
 		position: absolute; left: 5px; top: 5px; width: 50px;
 		img { vertical-align:middle; border:1px solid @userImageBorderColor; }
 	}
@@ -141,28 +141,28 @@ h1 small { font-size:24px; letter-spacing:0px; }
 	.rep {  bottom:6px; right:8px; }
 	.acceptance { bottom:6px; left:65px; }
 
-	&.selected { 
+	&.selected {
 		background:@selectedRowBgColor;
 	}
 
 }
 
-.ui-tag { position:relative; background:@tagBackgroundColor; color:@tagColor; padding:6px 10px; margin-bottom:4px; 
+.ui-tag { position:relative; background:@tagBackgroundColor; color:@tagColor; padding:6px 10px; margin-bottom:4px;
 	.name { font-size:1.2em; display:inline; }
 	.count { position:absolute; right:10px; }
-	&.selected { 
+	&.selected {
 		background:@selectedRowBgColor;
 	}
 }
 
-.ui-load-more { 
-	background:@loadMoreBgcolor; color:@loadMoreColor; border:1px solid @loadMoreBorderColor; text-align:center; position:relative; width:100%; height:25px; padding-top:10px; padding-bottom:10px; cursor:pointer; 
+.ui-load-more {
+	background:@loadMoreBgcolor; color:@loadMoreColor; border:1px solid @loadMoreBorderColor; text-align:center; position:relative; width:100%; height:25px; padding-top:10px; padding-bottom:10px; cursor:pointer;
 }
 
-.ui-question { position: relative; cursor:pointer; background: @questionBgColor; color:@questionColor; padding:10px 8px; margin-bottom:10px; border-left:65px solid @questionBorderLeftColor; border-right:65px solid @questionBorderRightColor;
+.ui-question { position: relative; cursor:pointer; background: @questionBgColor; color:@questionColor; padding:10px 8px; margin-bottom:10px; border-left:65px solid @questionBorderLeftColor; border-right:65px solid @questionBorderRightColor; font-family: "proxima-nova",sans-serif;
 
 	.box-shadow(0 1px 4px @questionBoxShadowColor);
-	
+
 	blockquote p { font-size:13px; }
 
 	.ui-label { font-weight:normal; }
@@ -189,19 +189,19 @@ h1 small { font-size:24px; letter-spacing:0px; }
 	.viewcount, .answers { text-align:center; font-size:1.3em; position:absolute; top:20px; }
 	.viewcount { right: 70px; }
 	.answers { right:20px; bottom:23px; }
-	.tags { 
+	.tags {
 		a { color:#eaeaea; }
 	}
 	.qa-container { display:none; padding-top:10px;
-		.question, 
+		.question,
 		.answer { border-top:1px solid #ccc; padding-top:5px; line-height: 1.8em; }
 		> strong { line-height:2em; padding:0px; margin:0px; font-size:1.5em; }
 	}
 
-	&.ui-starred { 
+	&.ui-starred {
 		.starred { opacity:0.8; color:@orangeColor; }
 	}
-	
+
 	&.answer-loaded,
 	&:hover{
 		background:@questionLoadedColor; border-color:@questionLoadedBorderColor;
