@@ -6,16 +6,16 @@
 <head>
 
 	<!--
-	
-	 #####                                   #######        
-	#     # #####   ##    ####  #    #       #       #####  
-	#         #    #  #  #    # #   #        #       #    # 
-	 #####    #   #    # #      ####   ##### #####   #    # 
-	      #   #   ###### #      #  #         #       #    # 
-	#     #   #   #    # #    # #   #        #       #    # 
-	 #####    #   #    #  ####  #    #       ####### #####  
 
-	Feel free to peruse the code. 
+	 #####                                   #######
+	#     # #####   ##    ####  #    #       #       #####
+	#         #    #  #  #    # #   #        #       #    #
+	 #####    #   #    # #      ####   ##### #####   #    #
+	      #   #   ###### #      #  #         #       #    #
+	#     #   #   #    # #    # #   #        #       #    #
+	 #####    #   #    #  ####  #    #       ####### #####
+
+	Feel free to peruse the code.
 
 	Nirvana Tikku (@ntikku)
 
@@ -27,14 +27,18 @@
 	<title>Stack-Ed. Stand on the shoulders of the Stack Overflow Giants.</title>
 	<meta name="description" content="">
 	<meta name="author" content="">
-	
+
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-	<!-- 
+	<!--
 		STYLES
 	-->
+  <!-- Type Kit Settings -->
+  <script type="text/javascript" src="//use.typekit.net/pyr5mee.js"></script>
+  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
 	<link rel="stylesheet" href="/css/style.css">
-	<link rel="stylesheet" href="/css/bootstrap.css"> <!--.min.css; need to pull this out? -->	
+	<link rel="stylesheet" href="/css/bootstrap.css"> <!--.min.css; need to pull this out? -->
 	<link rel="stylesheet" href="/css/bootstrap-responsive.css">
 	<link rel="stylesheet/less" type="text/css" href="/css/website.less"/>
 
@@ -42,7 +46,7 @@
 
 
 
-	<!-- 
+	<!--
 		SCRIPTS
 	-->
 	<script src="/js/libs/modernizr.min.js"></script>
@@ -82,7 +86,7 @@
             			<span  class="label label-inverse">
             				{{ user.nickname }} &nbsp;
 							<a href='#my-starred-questions' rel="tooltip" class='badge badge-info js-stacked-user-num-starred' data-placement="bottom" data-original-title="Filter Favorite Questions" title="Filter Favorite Questions">{{ user.num_starred }}</a>
-            			</span> 
+            			</span>
             			&nbsp; &nbsp; / &nbsp; &nbsp;
             			<a href="{{ logout_url }}" class="">Logout</a>
             		</div>
@@ -105,7 +109,7 @@
 	<div id="footer">
 	  <div class="container">
 	    <p class="muted credit">
-	    	Created by <a href="http://tikku.com">Nirvana Tikku</a>. Built in Boston. <em>Note: This site has not been optimized for Mobile (yet).</em> 
+	    	Created by <a href="http://tikku.com">Nirvana Tikku</a>. Built in Boston. <em>Note: This site has not been optimized for Mobile (yet).</em>
 	    	<span class='pull-right'>Powered by the StackExchange API. </span>
 	    </p>
 	  </div>
@@ -153,8 +157,8 @@
     <h3 id="signin">Sign In to Stack-Ed</h3>
   </div>
   <div class="modal-body">
-    <p> 
-    	Signing into Stack-Ed will allow you to star your favorite questions. 
+    <p>
+    	Signing into Stack-Ed will allow you to star your favorite questions.
     </p>
     <p>
     	Once signed in, you will be able to retrieve your starred questions conveniently.
@@ -164,7 +168,7 @@
     <button class="btn pull-right" data-dismiss="modal" aria-hidden="true">Close</button>
   </div>
 </div>
-{% endif %} 
+{% endif %}
 
 <script src="/js/plugins.js"></script>
 
