@@ -1,3 +1,4 @@
-<input name='selection' class='tag-selection' type='checkbox'> &nbsp;
-<label for='selection' class='name'><%= name %></label> 
+<label for='tag-<%= name %>' class='name'>
+	<input id='tag-<%= name %>' name="sel" class='tag-selection' type='radio'> &nbsp; <%= name %>
+</label>  
 <span class='count'><%= Format.comma(count) %></span>

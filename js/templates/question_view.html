@@ -1,7 +1,9 @@
 <div>
 
 	<h2 class='title'>
-		<span class='title-string'><%= title %></span>
+		<a class='underline' href='javascript:void(0);'>
+			<span class='title-string'><%= title %></span>
+		</a>
 		<% if(is_answered && accepted_answer_id !== 0) { %>
 			<span class='answered pictos-icon'>3</span>
 		<% } else if (is_answered) { %>
@@ -23,7 +25,7 @@
 	</div>
 	<div class="answers">
 		<span class='pictos-icon'>W</span>
-		<%= Format.comma(answer_count) %>
+		<%= Format.comma(score) %>
 	</div>
 	<div class="created">
 		<%= Format.epoch(creation_date) %>

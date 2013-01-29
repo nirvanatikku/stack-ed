@@ -5,115 +5,113 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
 <head>
 
-	<!--
+  <!--
 
-	 #####                                   #######
-	#     # #####   ##    ####  #    #       #       #####
-	#         #    #  #  #    # #   #        #       #    #
-	 #####    #   #    # #      ####   ##### #####   #    #
-	      #   #   ###### #      #  #         #       #    #
-	#     #   #   #    # #    # #   #        #       #    #
-	 #####    #   #    #  ####  #    #       ####### #####
+     #####                                   #######
+    #     # #####   ##    ####  #    #       #       #####
+    #         #    #  #  #    # #   #        #       #    #
+     #####    #   #    # #      ####   ##### #####   #    #
+          #   #   ###### #      #  #         #       #    #
+    #     #   #   #    # #    # #   #        #       #    #
+     #####    #   #    #  ####  #    #       ####### #####
 
-	Feel free to peruse the code.
+    Feel free to peruse the code. Interested in contributing? https://github.com/nirvanatikku/stack-ed
 
-	Nirvana Tikku (@ntikku)
+    Nirvana Tikku (@ntikku)
 
-	-->
+  -->
 
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-	<title>Stack-Ed. Stand on the shoulders of the Stack Overflow Giants.</title>
-	<meta name="description" content="">
-	<meta name="author" content="">
+  <title>Stack-Ed. Stand on the shoulders of the Stack Overflow Giants.</title>
+  <meta name="description" content="The most reputable StackOverflow contributors and their accepted answers to questions.">
+  <meta name="author" content="Nirvana Tikku">
 
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-	<!--
-		STYLES
-	-->
+  <!--
+    STYLES
+  -->
   <!-- Type Kit Settings -->
   <script type="text/javascript" src="//use.typekit.net/pyr5mee.js"></script>
   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
 
-	<link rel="stylesheet" href="/css/style.css">
-	<link rel="stylesheet" href="/css/bootstrap.css"> <!--.min.css; need to pull this out? -->
-	<link rel="stylesheet" href="/css/bootstrap-responsive.css">
-	<link rel="stylesheet/less" type="text/css" href="/css/website.less"/>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/bootstrap.css"> <!--.min.css; need to pull this out? -->
+  <link rel="stylesheet" href="/css/bootstrap-responsive.css">
+  <link rel="stylesheet/less" type="text/css" href="/css/website.less"/>
 
-	<link href="http://fonts.googleapis.com/css?family=Didact Gothic&subset=latin" rel="stylesheet" type="text/css">
+  <link href="http://fonts.googleapis.com/css?family=Helvetica Neue&subset=latin" rel="stylesheet" type="text/css">
 
-
-
-	<!--
-		SCRIPTS
-	-->
-	<script src="/js/libs/modernizr.min.js"></script>
-	<script src="/js/libs/require.js" data-main="js/main"></script>
-	<script src="/js/libs/less.min.js"></script>
+  <!--
+    SCRIPTS
+  -->
+  <script src="/js/libs/modernizr.min.js"></script>
+  <script src="/js/libs/require.js" data-main="js/main"></script>
+  <script src="/js/libs/less.min.js"></script>
 
 </head>
 <body>
 
-	<script type="text/javascript">
+  <script type="text/javascript">
 
-	  var _gaq = _gaq || [];
-	  _gaq.push(['_setAccount', '[provide a google analytics id]']);
-	  _gaq.push(['_trackPageview']);
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', '[provide a google analytics id]']);
+    _gaq.push(['_trackPageview']);
 
-	  (function() {
-	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-	  })();
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
 
-	</script>
+  </script>
 
-	<div class="js-navbar ui-navbar navbar navbar-fixed-top">
+  <div class="js-navbar ui-navbar navbar navbar-fixed-top">
       <div class="navbar-inner">
         <div class="">
           <a class="brand" href="/">Stack-Ed</a>
           <div class="nav-collapse collapse">
             <ul class="nav">
               <li>
-              	<a href="#about" role="button" class="" data-toggle="modal">About</a>
+                <a href="#about" role="button" class="" data-toggle="modal">About</a>
               </li>
             </ul>
             <div class="pull-right ui-user-info-container user-info-container">
-            	{% if user %}
-            		<div>
-            			<span  class="label label-inverse">
-            				{{ user.nickname }} &nbsp;
-							<a href='#my-starred-questions' rel="tooltip" class='badge badge-info js-stacked-user-num-starred' data-placement="bottom" data-original-title="Filter Favorite Questions" title="Filter Favorite Questions">{{ user.num_starred }}</a>
-            			</span>
-            			&nbsp; &nbsp; / &nbsp; &nbsp;
-            			<a href="{{ logout_url }}" class="">Logout</a>
-            		</div>
-            	{% else %}
-	              <a href="{{ login_url }}" class="label label-inverse">	Sign In
-	              </a>
-              	{% endif %}
+              {% if user %}
+                <div>
+                  <span  class="label label-inverse">
+                    {{ user.nickname }} &nbsp;
+              <a href='#my-starred-questions' rel="tooltip" class='badge badge-info js-stacked-user-num-starred' data-placement="bottom" data-original-title="Filter Favorite Questions" title="Filter Favorite Questions">{{ user.num_starred }}</a>
+                  </span>
+                  &nbsp; &nbsp; / &nbsp; &nbsp;
+                  <a href="{{ logout_url }}" class="">Logout</a>
+                </div>
+              {% else %}
+                <a href="{{ login_url }}" class="label label-inverse">  Sign In
+                </a>
+                {% endif %}
             </div>
           </div><!--/.nav-collapse -->
         </div>
       </div>
     </div>
 
-	<div id='wrap' class='main-container' role="main">
+  <div id='wrap' class='main-container' role="main">
 
-		{{ page }}
+    {{ page }}
 
-	</div>
+  </div>
 
-	<div id="footer">
-	  <div class="container">
-	    <p class="muted credit">
-	    	Created by <a href="http://tikku.com">Nirvana Tikku</a>. Built in Boston. <em>Note: This site has not been optimized for Mobile (yet).</em>
-	    	<span class='pull-right'>Powered by the StackExchange API. </span>
-	    </p>
-	  </div>
-	</div>
+  <div id="footer">
+    <div class="container">
+      <p class="muted credit">
+        Created by <a href="http://tikku.com">Nirvana Tikku</a>. Built in Boston. <em>Note: This site has not been optimized for Mobile (yet).</em>
+        <span class='pull-right'>Powered by the <a href='http://api.stackexchange.com/'>StackExchange API</a>. </span>
+      </p>
+    </div>
+  </div>
 
 <div id="about" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-header">
@@ -128,22 +126,22 @@
     <p>Stack-Ed is a very simple site that provides a portal into the <big>the most reputable StackOverflow contributors and their accepted answers to questions</big>. </p>
     <p>Start by selecting a topic then freely peruse the contributors with the highest reputations. Select a given contributor and see Questions that they have answered on StackOverflow.</p>
     <p>This idea was inspired by several utilities shared on HackerNews lately, as well as a recent addiction to StackOverflow.
-    	<ul>
-    		<li>
-    			<a href='http://news.ycombinator.com/item?id=5027021'>howdoi</a> - a command line utility written in python that resolves the StackOverflow content via google and duckduckgo.com
-    		</li>
-    		<li>
-    			<a href='http://news.ycombinator.com/item?id=4916929'>codingforinterviews.com</a> - empowering users to learn useful areas of technical depth in a more passive manner
-    		</li>
-    		<li>
-    			<a href='http://news.ycombinator.com/news'>HackerNews</a> - the simple act of seeing content based on <em>trends</em> or data <em>validated by users</em>
-    		</li>
-    	</ul>
+      <ul>
+        <li>
+          <a href='http://news.ycombinator.com/item?id=5027021'>howdoi</a> - a command line utility written in python that resolves the StackOverflow content via google and duckduckgo.com
+        </li>
+        <li>
+          <a href='http://news.ycombinator.com/item?id=4916929'>codingforinterviews.com</a> - empowering users to learn useful areas of technical depth in a more passive manner
+        </li>
+        <li>
+          <a href='http://news.ycombinator.com/news'>HackerNews</a> - the simple act of seeing content based on <em>trends</em> or data <em>validated by users</em>
+        </li>
+      </ul>
     </p>
     <br/>
     <p>
-    	Think of Stack-Ed as an educational resource. Learn as much as you can.
-	</p>
+      Think of Stack-Ed as an educational resource. Learn as much as you can.
+  </p>
   </div>
   <div class="modal-footer">
     <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
@@ -158,10 +156,10 @@
   </div>
   <div class="modal-body">
     <p>
-    	Signing into Stack-Ed will allow you to star your favorite questions.
+      Signing into Stack-Ed will allow you to star your favorite questions.
     </p>
     <p>
-    	Once signed in, you will be able to retrieve your starred questions conveniently.
+      Once signed in, you will be able to retrieve your starred questions conveniently.
     </p>
   </div>
   <div class="modal-footer">
