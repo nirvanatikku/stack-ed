@@ -20,7 +20,7 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 from PyCryptoSignedJWT import PyCryptoSignedJwtAssertionCredentials
 from stackedbot.models import PendingTweet
 
-logger = logging.getLogger('stack_server')
+logger = logging.getLogger('stack_ed_bot')
 dev_env = os.environ['SERVER_SOFTWARE'].startswith('Development')
 
 ## note: must have a bot_credentials file in the root/parent directory
@@ -294,3 +294,15 @@ class CronSeedTweetsHandler(BaseHandler):
         self.response.write("Successfully Seeded PendingTweets" if seeded is True else "Failed to Seed PendingTweets")
         return
 
+
+
+app = webapp2.WSGIApplication([
+    (r'/cron/seed_tweets', CronSeedTweetsHandler),
+    (r'/cron/tweet', CronTweetHandler)
+], debug=dev_env)
+
+def main():
+    run_wsgi_app(app)
+
+if __name__ == '__main__':
+    main()

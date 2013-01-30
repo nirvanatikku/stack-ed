@@ -21,6 +21,9 @@ handlers:
 - url: /js/
   static_dir: js
 
+- url: /cron/.*
+  script: stacked.bot.app
+
 - url: .*
   script: main.app
 

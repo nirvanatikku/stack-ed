@@ -14,7 +14,6 @@ from google.appengine.api import users
 from google.appengine.ext import db
 from stacked.models import *
 from google.appengine.ext.webapp.util import run_wsgi_app
-from stacked.bot import *
 
 dev_env = os.environ['SERVER_SOFTWARE'].startswith('Development')
 
@@ -158,9 +157,7 @@ config['webapp2_extras.sessions'] = {
 
 app = webapp2.WSGIApplication([
     (r'/', HomeHandler),
-    (r'/star_question', StarQuestionHandler),
-    (r'/cron/seed_tweets', CronSeedTweetsHandler),
-    (r'/cron/tweet', CronTweetHandler)
+    (r'/star_question', StarQuestionHandler)
 ], debug=dev_env, config=config)
 
 def main():
