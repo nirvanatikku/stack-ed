@@ -1,13 +1,18 @@
 define(['jquery','underscore'], function(){
 
-    //
-    //  TODO: refactor the base params for all API requests. Currently being built for different calls.
-    //
     var BASE_URL = "https://api.stackexchange.com/2.1/"; // v1.1: "http://api.stackoverflow.com/1.1/";
     var YQL_BASE_URL = "http://query.yahooapis.com/v1/public/yql?q=";
     var ACCEPTED_ANSWER_YQL_TMPL = "select * from html where url='<%=link%>' and xpath='//div[@id=\"answer-<%=accepted_answer_id%>\"]'"
     var ACCEPTED_QUESTION_YQL_TMPL = "select * from html where url='<%=link%>' and xpath='//div[@id=\"question\"]'"
 
+    var question_search_defaults = {
+        "order": "desc",
+        "page": "1",
+        "pagesize": "20",
+        "sort": "votes"
+    };
+
+    // GET requests. Could let jQuery deal with it; but it's all good.
     var buildURL = function buildURL(type, params){
         if( !params || !('key' in params) ) { 
             throw "NEED A STACKOVERFLOW KEY";
@@ -95,32 +100,17 @@ define(['jquery','underscore'], function(){
             return this.__request__(url);
         },
         "questions_by_users": function(ids,params){
-            var url = buildURL("users/"+ids+"/questions", _.extend({},{
-                "order": "desc",
-                "page": "1",
-                "pagesize": "20",
-                "sort": "votes"
-            },params));
+            var url = buildURL("users/"+ids+"/questions", _.extend({},question_search_defaults,params));
             return this.__request__(url);
         },
         "topquestions_by_users": function(ids,tags,params){
             // /users/{id}/tags/{tags}/top-questions
-            var url = buildURL("users/"+ids+"/tags/"+tags+"/top-questions", _.extend({},{
-                "order": "desc",
-                "page": "1",
-                "pagesize": "20",
-                "sort": "votes"
-            },params));
+            var url = buildURL("users/"+ids+"/tags/"+tags+"/top-questions", _.extend({},question_search_defaults,params));
             return this.__request__(url);
         },
         "topanswers_by_users": function(ids,tags,params){
             // /users/{id}/tags/{tags}/top-answers
-            var url = buildURL("users/"+ids+"/tags/"+tags+"/top-answers", _.extend({},{
-                "order": "desc",
-                "page": "1",
-                "pagesize": "20",
-                "sort": "votes"
-            },params));
+            var url = buildURL("users/"+ids+"/tags/"+tags+"/top-answers", _.extend({},question_search_defaults,params));
             return this.__request__(url);
         },
         "answer":function(id, params){
@@ -132,6 +122,7 @@ define(['jquery','underscore'], function(){
             return this.__request__(url);
         },
         "topanswers":function(params){
+            // v1.1
             return this.answers(_.extend({},{
                 "order": "desc",
                 "body": "true",

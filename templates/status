@@ -1,0 +1,1 @@
+{{rank}} {{ title }} {{ link }} {% foreach tag in tags %}{%if forloop.counter > 1%} {%endif%}#{{tag}}

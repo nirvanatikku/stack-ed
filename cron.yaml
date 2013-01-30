@@ -1,0 +1,9 @@
+cron:
+
+# - description: publish pending tweets
+#   url: /cron/tweet
+#   schedule: every 2 hours
+
+# - description: seed the bot with tweets
+#   url: /cron/seed_tweets
+#   schedule: every 24 hours

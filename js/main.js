@@ -157,7 +157,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
                         var fav = res === "favorited";
                         if( res === "unfavorited" ) { 
                             self.setFavorite(false);
-                            var newStarredQs = _.without(starredQs, qID);
+                            var newStarredQs = _.without(starredQs, String(qID));
                             user.set("starred_questions", newStarredQs);
                         } else if (res === "favorited") { 
                             self.setFavorite(true);
@@ -168,7 +168,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
                             // console.log(res);
                         }
                     });
-                    trackEvt("Star_Question");
+                    trackEvt("Star_Question", qID);
                 } else { 
                     // modal alert that user should login
                     trackEvt("Sign_In","Show_Modal");
@@ -183,7 +183,8 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
                 }
                 self.showLoadingGif();
                 var accepted_answer_id = self.model.get("accepted_answer_id");
-                var answer = StackAPI.answer(accepted_answer_id, {
+                trackEvt("Select_Question", self.model.get("title")+"|"+self.model.get("link"), self.model.get("tags").join("|"));
+                StackAPI.answer(accepted_answer_id, {
                     key: StackAPI_Key
                 }).done(function(res){
                     // answer
@@ -198,7 +199,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
                             self.showAnswerContent(true);
                             return;
                         }
-                        self.addAnswerContent($("<div></div>").append(ret).html());
+                        self.addAnswerContent($("<div></div>").append(ret).html()); // XML -> string -> $.parseHTML
                         self.showAnswerContent(true);
                     });
                     // question
@@ -350,7 +351,9 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
         },
         defaultRoute: function(target){
             // this.tagsRoute();
-
+            if(this.app.get("user")){
+                this.tagsRoute();
+            }
         }
     });
 

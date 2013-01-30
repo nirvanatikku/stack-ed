@@ -79,7 +79,8 @@ h1 small { font-size:24px; letter-spacing:0px; }
 
 .user-info-container { margin-right: 40px; margin-top: 10px; }
 
-.underline { color:@blueColor; }
+.underline { text-decoration:underline; }
+.highlight { color:@blueColor;}
 
 .intro-message { margin:0 auto; margin-top:80px; margin-right:60px;
     .hero-unit { background:#fff; color:#2f2f2f; }
@@ -94,6 +95,7 @@ h1 small { font-size:24px; letter-spacing:0px; }
 }
 
 .label, .badge { border-radius:0px;  }
+.ui-twitter-button { margin-top: 8px; margin-left: 35px; }
 
 .ui-filter-criteria,
 .ui-filter-criteria .label { display:inline-block; font-size:0.75em; padding: 4px 6px; }
@@ -177,6 +179,7 @@ h1 small { font-size:24px; letter-spacing:0px; }
     .title { text-shadow:0 1px 3px #ddd; font-weight:normal; position:relative; /* */
         .title-string { display:block; position:relative; width:85%; font-size:0.85em; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
         .starred { position:absolute; top:0px; right:-50px; float:left; opacity:0.4; }
+        .starred:active { text-shadow:0 0 10px @orangeColor; }
         &:hover {
 
         }
@@ -189,7 +192,7 @@ h1 small { font-size:24px; letter-spacing:0px; }
         .answered-not-accepted { color:@warningColor; }
     }
 
-    pre { padding: 0px 8.5px; line-height: 1.25em; }
+    pre { padding: 0px 8.5px; height:auto; border-radius:0px; }
 
     &.fav { .starred { opacity:1; } }
     .created { position: absolute; right: 20px; top: 50px; }
