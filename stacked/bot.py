@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# 
+#   Author: Nirvana Tikku (@ntikku) - http://github.com/nirvanatikku/ga_twitterbot
+#
 import os
 import sys
 import webapp2
