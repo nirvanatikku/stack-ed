@@ -110,7 +110,7 @@ and a context (dictionary).
 """
 class BotMessage:
 
-    ROOT = "templates/"
+    ROOT = "../templates/"
 
     def __init__(self):
         self.path = BotMessage.ROOT
