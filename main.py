@@ -13,7 +13,16 @@ from google.appengine.ext.webapp import template
 from google.appengine.api import users
 from google.appengine.ext import db
 from stacked.models import *
+from google.appengine.ext.webapp.util import run_wsgi_app
+from stacked.bot import *
 
+dev_env = os.environ['SERVER_SOFTWARE'].startswith('Development')
+
+##
+##
+## Utils
+##
+##
 class Layout:
 
     ROOT = "templates/"
@@ -37,6 +46,12 @@ class Layout:
         path = os.path.join(os.path.dirname(__file__), Layout.ROOT + tmplPath)
         return template.render(path, ctx)
 
+
+##
+##
+## Website Request Handlers
+##
+##
 class BaseHandler(webapp2.RequestHandler):
 
     def __init__(self, request, response):
@@ -123,6 +138,7 @@ class StarQuestionHandler(BaseHandler):
             else:
                 user_question_query = db.Query(StackEdUser_StackQuestion)
                 user_question_query.filter("user = ", stack_ed_user)
+                user_question_query.filter("question = ", stack_question)
                 user_question = user_question_query.get()
                 if user_question is None:
                     user_question = StackEdUser_StackQuestion(user=stack_ed_user, 
@@ -132,18 +148,20 @@ class StarQuestionHandler(BaseHandler):
                 else:
                     user_question.delete()
                     self.response.write(StarQuestionHandler.UNFAV_RESPONSE)
+
+
 config = {}
 config['webapp2_extras.sessions'] = {
     'secret_key': '',
     'cookie_name': 'stack-ed'
 }
 
-DEV_MODE = os.environ['SERVER_SOFTWARE'].startswith('Development')
-
 app = webapp2.WSGIApplication([
     (r'/', HomeHandler),
-    (r'/star_question', StarQuestionHandler)
-], debug=DEV_MODE, config=config)
+    (r'/star_question', StarQuestionHandler),
+    (r'/cron/seed_tweets', CronSeedTweetsHandler),
+    (r'/cron/tweet', CronTweetHandler)
+], debug=dev_env, config=config)
 
 def main():
     run_wsgi_app(app)
