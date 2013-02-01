@@ -129,7 +129,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
                 return 0;
             };
             return _.reduce(["is_answered","view_count","answer_count"], function (acc, comp) {
-                return acc !== 0 ? acc : -c(m1.get(comp), m2.get(comp))
+                return acc !== 0 ? acc : -c(m1.get(comp), m2.get(comp));
             }, 0);
         };
         results.get("items").sort();
@@ -193,27 +193,67 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
                         accepted_answer_id: accepted_answer_id
                     }).done(function(r){
                         // var ret = r.query.results.div.table.tr[0].td[1].div; // json
-                        var ret = $(r).find("results .answercell .post-text"); // xml
-                        if( ret.length === 0 ){
-                            self.addAnswerContent($('<div>No Accepted Answer.</div>')[0]);
-                            self.showAnswerContent(true);
-                            return;
+                        var content_expr = ".answercell .post-text";
+                        var ret = $(r).find(content_expr); // xml
+                        if( ret.length === 0){
+                            $.ajax({ 
+                                url: "/parse_so", 
+                                data: { 
+                                    url: self.model.get('link'),
+                                    parse_id: ("answer-"+accepted_answer_id)
+                                }
+                            }).done(function(res){
+                                (function(){
+                                    if( res === '' ) { 
+                                        self.addAnswerContent($('<div>No Accepted Answer.</div>')[0]);
+                                        self.showAnswerContent(true);
+                                        return;
+                                    }
+                                    var ret = $(res).find(content_expr);
+                                    self.addAnswerContent(ret);
+                                    self.showAnswerContent(true);
+                                })();
+                            });
+                        } else { 
+                            (function(){
+                                self.addAnswerContent($("<div></div>").append(ret).html()); // XML -> string -> $.parseHTML
+                                self.showAnswerContent(true);
+                            })();
                         }
-                        self.addAnswerContent($("<div></div>").append(ret).html()); // XML -> string -> $.parseHTML
-                        self.showAnswerContent(true);
                     });
                     // question
                     StackAPI.accepted_answer_question_content({
                         link: self.model.get("link")
                     }).done(function(r){
-                        var ret = $(r).find("results .postcell .post-text");
+                        var content_expr = ".postcell .post-text";
+                        var ret = $(r).find(content_expr);
                         if( ret.length === 0 ){
-                            self.addQuestionContent($('<div>Couldn\'t Load Question.</div>')[0]);
-                            self.showAnswerContent(true);
+                            $.ajax({ 
+                                url: "/parse_so", 
+                                data: { 
+                                    url: self.model.get('link'),
+                                    parse_id: "question",
+                                    expr: content_expr
+                                }
+                            }).done(function(res){
+                                (function(){
+                                    if( res === '' ) { 
+                                        self.addQuestionContent($('<div>Couldn\'t Load Question.</div>')[0]);
+                                        self.showAnswerContent(true);
+                                        return;
+                                    }
+                                    var ret = $(res).find(content_expr);
+                                    self.addQuestionContent(ret);
+                                    self.showQuestionContent(true);
+                                })();
+                            });
+                            
                             return;
                         }
-                        self.addQuestionContent($("<div></div>").append(ret).html());
-                        self.showQuestionContent(true);
+                        (function(){
+                            self.addQuestionContent($("<div></div>").append(ret).html());
+                            self.showQuestionContent(true);
+                        })();
                     });
                 });
             });

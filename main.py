@@ -8,6 +8,9 @@ import webapp2
 import logging
 import urllib2
 import json
+import codecs
+from lxml import etree, html
+from lxml.html.clean import Cleaner
 from webapp2_extras import sessions
 from google.appengine.ext.webapp import template
 from google.appengine.api import users
@@ -45,6 +48,33 @@ class Layout:
         path = os.path.join(os.path.dirname(__file__), Layout.ROOT + tmplPath)
         return template.render(path, ctx)
 
+##
+## Util to parse StackOverflow if YQL fails
+##
+class StackOverflowRequest:
+
+    def __init__(self, url):
+        self.url = "%s" % url
+        self.html = None
+
+    def fetch_content(self):
+        if self.url is None:
+            return None
+        req = urllib2.Request(self.url)
+        response = urllib2.urlopen(req)
+        self.html = unicode(response.read().strip(codecs.BOM_UTF8), 'utf-8')
+        return self.html
+
+    def parse(self, html_id):
+        if html_id is None or self.html is None:
+            return None
+        tree = html.fromstring(self.html)
+        cleaner = Cleaner(style=False, links=True, add_nofollow=True,
+                          page_structure=True, safe_attrs_only=True, scripts=True)
+        ret_val = cleaner.clean_html(tree.get_element_by_id(html_id))
+        ret_val.make_links_absolute('http://www.stackoverflow.com')
+        result = html.tostring(ret_val, encoding="utf-8")
+        return result.replace("&#13;","").replace("\n","")
 
 ##
 ##
@@ -95,6 +125,9 @@ class BaseHandler(webapp2.RequestHandler):
                     return self.session['user']
         return None
 
+##
+## SPA Entry point.
+##
 class HomeHandler(BaseHandler):
 
     def get(self):
@@ -114,6 +147,9 @@ class HomeHandler(BaseHandler):
             ctx['logout_url'] = users.create_logout_url('/')
         self.response.out.write( Layout().render_page('home.html', ctx) )
 
+##
+## Requires user auth
+##
 class StarQuestionHandler(BaseHandler):
 
     FAV_RESPONSE = "favorited"
@@ -148,6 +184,21 @@ class StarQuestionHandler(BaseHandler):
                     user_question.delete()
                     self.response.write(StarQuestionHandler.UNFAV_RESPONSE)
 
+##
+## Backup/Alternative 
+##
+class StackOverflowRequestHandler(BaseHandler):
+
+    def get(self):
+        url = self.request.get('url')
+        parse_id = self.request.get('parse_id')
+        if url != '' and parse_id != '':
+            req = StackOverflowRequest(url)
+            req.fetch_content()
+            ret = req.parse(parse_id)
+            self.response.write(ret);
+            return
+        self.response.write("")
 
 config = {}
 config['webapp2_extras.sessions'] = {
@@ -157,7 +208,8 @@ config['webapp2_extras.sessions'] = {
 
 app = webapp2.WSGIApplication([
     (r'/', HomeHandler),
-    (r'/star_question', StarQuestionHandler)
+    (r'/star_question', StarQuestionHandler),
+    (r'/parse_so', StackOverflowRequestHandler)
 ], debug=dev_env, config=config)
 
 def main():
