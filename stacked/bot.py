@@ -149,10 +149,9 @@ class SeedTweetsUtil:
 
     """ currently set to: 'yesterday' """
     def get_start_date(self):
-        # day_before = datetime.datetime.now() - timedelta(days=1)
-        # return day_before.strftime("%Y-%m-%d")
-        return self.get_end_date()
-
+        day_before = datetime.datetime.now() - timedelta(days=1)
+        return day_before.strftime("%Y-%m-%d")
+        
     """ currently set to: 'today' """
     def get_end_date(self):
         return datetime.datetime.now().strftime("%Y-%m-%d")
@@ -261,7 +260,7 @@ class CronTweetHandler(BaseHandler):
             return ''
 
     def get_pending_tweet(self):
-        return db.Query(PendingTweet).order("-viewCount").get()
+        return db.Query(PendingTweet).order("rank").get()
 
     """ Handle our get request. We will fetch our pending tweet, and publish it. """
     def get(self):
