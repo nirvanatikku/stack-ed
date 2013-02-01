@@ -181,8 +181,13 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
                     self.$el.find(".qa-container").toggle();
                     return;
                 }
-                self.showLoadingGif();
                 var accepted_answer_id = self.model.get("accepted_answer_id");
+                if( accepted_answer_id == 0 ) { // type coercion is fine
+                    self.addAnswerContent($('<div></div>')[0]);
+                    self.showAnswerContent(true);
+                    return;
+                }
+                self.showLoadingGif();
                 trackEvt("Select_Question", self.model.get("title")+"|"+self.model.get("link"), self.model.get("tags").join("|"));
                 StackAPI.answer(accepted_answer_id, {
                     key: StackAPI_Key
@@ -194,7 +199,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
                     }).done(function(r){
                         // var ret = r.query.results.div.table.tr[0].td[1].div; // json
                         var content_expr = ".answercell .post-text";
-                        var ret = $(r).find(content_expr); // xml
+                        var ret = $(r).find("results " + content_expr); // xml
                         if( ret.length === 0){
                             $.ajax({ 
                                 url: "/parse_so", 
@@ -226,7 +231,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
                         link: self.model.get("link")
                     }).done(function(r){
                         var content_expr = ".postcell .post-text";
-                        var ret = $(r).find(content_expr);
+                        var ret = $(r).find("results " + content_expr);
                         if( ret.length === 0 ){
                             $.ajax({ 
                                 url: "/parse_so", 
@@ -239,7 +244,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
                                 (function(){
                                     if( res === '' ) { 
                                         self.addQuestionContent($('<div>Couldn\'t Load Question.</div>')[0]);
-                                        self.showAnswerContent(true);
+                                        self.showQuestionContent(true);
                                         return;
                                     }
                                     var ret = $(res).find(content_expr);

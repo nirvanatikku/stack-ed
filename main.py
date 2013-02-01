@@ -74,7 +74,7 @@ class StackOverflowRequest:
         ret_val = cleaner.clean_html(tree.get_element_by_id(html_id))
         ret_val.make_links_absolute('http://www.stackoverflow.com')
         result = html.tostring(ret_val, encoding="utf-8")
-        return result.replace("&#13;","").replace("\n","")
+        return result.replace("&#13;","")
 
 ##
 ##
