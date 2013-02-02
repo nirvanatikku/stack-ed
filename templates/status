@@ -1,1 +1,1 @@
-{{rank}} {{ title }} {% for tag in tags %}{%if forloop.counter > 0%}{{' '}}{%endif%}#{{tag}}{% endfor %} {{ link }} 
+{{rank}} {{ title|safe }} {% for tag in tags %}{%if forloop.counter > 0%}{{' '}}{%endif%}#{{tag}}{% endfor %} {{ link }} 

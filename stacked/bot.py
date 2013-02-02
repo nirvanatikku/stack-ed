@@ -12,6 +12,7 @@ import httplib2
 import json
 import random 
 import tweepy
+import codecs
 from datetime import timedelta
 from apiclient.discovery import build
 from google.appengine.ext.webapp import template
@@ -268,7 +269,7 @@ class CronTweetHandler(BaseHandler):
         logger.info("working with %s" % pending_tweet)
         if pending_tweet is not None:
             ctx = {}
-            ctx['title'] = pending_tweet.title
+            ctx['title'] = unicode(pending_tweet.title.strip(codecs.BOM_UTF8), 'utf-8')
             ctx['link'] = pending_tweet.link
             ctx['tags'] = pending_tweet.tags.split("|")
             ctx['view_count'] = pending_tweet.viewCount

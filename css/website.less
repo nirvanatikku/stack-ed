@@ -17,7 +17,7 @@
   box-shadow: @arguments;
 }
 
-@background:#eaeaea;
+@background:#f3f3f3;
 @mainFont: 'Helvetica Neue';
 @headerFont: 'proxima-nova';
 @footerBackground: rgba(250,250,250,0.9);
@@ -35,17 +35,18 @@
 @warningColor: #C09853;
 @errorColor: #B94A48;
 
-@selectedRowBgColor: #fafafa;
+@selectedRowBgColor: #fff;
+@selectedRowBoxShadow: 0px 0px 2px #bbb;
 
 @userHeight: 40px;
-@userBackgroundColor: #e1e1e1;
-@userHoverBackgroundColor: #ededed;
+@userBackgroundColor: rgba(250, 250, 250, 0.6);
+@userHoverBackgroundColor: #fff;
 @userBoxShadowColor: #fff;
 @userActiveBoxShadowColor: rgba(130,130,130,0.5);
 @userImageBorderColor: rgba(250,250,250,0.8);
 
 @tagColor: #232323;
-@tagBackgroundColor: #E1E1E1;
+@tagBackgroundColor: rgba(250, 250, 250, 0.6);
 
 @loadMoreBgcolor: rgba(250,250,250,0.75);
 @loadMoreColor: #222;
@@ -66,6 +67,7 @@ h1 small { font-size:24px; letter-spacing:0px; }
 
 .main-container {
     position:relative; left:0px; right:0px; margin:0 auto; height:100%; width:100%; margin:20px 10px;
+    h1 { margin: 10px 0px 0px 0px; font-weight:normal; }
 }
 .hidden { display:none; }
 #wrap { min-height:100%; height: auto !important; height: 100%; width:100%; margin: 0 auto -60px; }
@@ -75,7 +77,7 @@ h1 small { font-size:24px; letter-spacing:0px; }
 .ui-navbar { opacity:0; }
 .navbar .nav { margin:5px 10px 0px 0px; }
 .navbar-inner { padding:10px; .box-shadow(none); border-bottom: 4px solid @navbarBorderColor; }
-.navbar .brand { margin-left:0px; font-weight:bold; font-size:3em; line-height:0.5em; color:white; }
+.navbar .brand { margin-left:0px; /* font-weight:bold;*/ font-size:3em; line-height:0.5em; color:white; }
 
 .user-info-container { margin-right: 40px; margin-top: 10px; }
 
@@ -95,7 +97,10 @@ h1 small { font-size:24px; letter-spacing:0px; }
 }
 
 .label, .badge { border-radius:0px;  }
-.ui-twitter-button { margin-top: 8px; margin-left: 35px; }
+.ui-fb-button,
+.ui-twitter-button { margin-top: 8px; margin-left: 35px; margin-right:0px; }
+.ui-fb-button { margin-left:0px; }
+.ui-gplus-button  { margin-top:6px; margin-left:0px; margin-right:0px; }
 
 .ui-filter-criteria,
 .ui-filter-criteria .label { display:inline-block; font-size:0.75em; padding: 4px 6px; }
@@ -146,6 +151,7 @@ h1 small { font-size:24px; letter-spacing:0px; }
 
     &.selected {
         background:@selectedRowBgColor;
+        .box-shadow(@selectedRowBoxShadow);
     }
 
 }
@@ -155,6 +161,7 @@ h1 small { font-size:24px; letter-spacing:0px; }
     .count { position:absolute; right:10px; }
     &.selected {
         background:@selectedRowBgColor;
+        .box-shadow(@selectedRowBoxShadow);
     }
 }
 
@@ -177,7 +184,7 @@ h1 small { font-size:24px; letter-spacing:0px; }
     .ui-label { font-weight:normal; }
 
     .title { text-shadow:0 1px 3px #ddd; font-weight:normal; position:relative; /* */
-        .title-string { display:block; position:relative; width:85%; font-size:0.85em; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
+        .title-string { display:block; position:relative; width:75%; font-size:0.85em; line-height:1.5em; /*white-space:nowrap;*/ text-overflow:ellipsis; overflow:hidden;}
         .starred { position:absolute; top:0px; right:-50px; float:left; opacity:0.4; }
         .starred:active { text-shadow:0 0 10px @orangeColor; }
         &:hover {
