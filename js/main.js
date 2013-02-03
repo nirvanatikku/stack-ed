@@ -52,51 +52,55 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
 
 	var StackAPI_Key = "[provide a stack overflow key]";
 
-    function initAnswerers(tag, overwrite){
-        return function(res){
-            var results = new StackResponse(res);
-            if( overwrite || !App.get("cache").get("answerers") ) {
-                App.get("cache").set("answerers", results);
-            } else {
-                App.get("cache").answerers.get("items").add(results.get("items").models);
-            }
-            if( results.get("has_more") === true ) { 
-                App.view.$el.find(".js-load-more-answerers").show();
-            } else if ( results.get("has_more") === false ) { 
-                App.view.$el.find(".js-load-more-answerers").hide();
-            }
-            var items = results.get("items");
-            items.comparator = function(m1,m2){
-                var c = function(c1,c2){
-                    if (c1 < c2) return -1;
-                    if (c1 > c2) return +1;
-                    return 0;
+    var Answerers = {
+        init: function init(tag, overwrite){
+            return function(res){
+                var results = new StackResponse(res);
+                if( overwrite || !App.get("cache").get("answerers") ) {
+                    App.get("cache").set("answerers", results);
+                } else {
+                    App.get("cache").answerers.get("items").add(results.get("items").models);
+                }
+                if( results.get("has_more") === true ) { 
+                    App.view.$el.find(".js-load-more-answerers").show();
+                } else if ( results.get("has_more") === false ) { 
+                    App.view.$el.find(".js-load-more-answerers").hide();
+                }
+                var items = results.get("items");
+                items.comparator = function(m1,m2){
+                    var c = function(c1,c2){
+                        if (c1 < c2) return -1;
+                        if (c1 > c2) return +1;
+                        return 0;
+                    };
+                    return _.reduce(["reputation","accept_rate"], function (acc, comp) {
+                        return acc !== 0 ? acc : -c(m1.get(comp), m2.get(comp))
+                    }, 0);
                 };
-                return _.reduce(["reputation","accept_rate"], function (acc, comp) {
-                    return acc !== 0 ? acc : -c(m1.get(comp), m2.get(comp))
-                }, 0);
-            };
-            App.view.clearAnswerers();
-            items.sort();
-            var tmpView;
-            for(var i=0; i<items.models.length; i++){
-                tmpView = new StackUserView({model: items.models[i]});
-                tmpView.on("select", function(){
-                    // StackAPI.questions_by_users(this.model.get("user_id"),{
-                    //  key: StackAPI_Key
-                    // }).done(initQuestions());
-                    this.clearSelectedSiblings();
-                    App.router.routeTo("tag/"+encodeURIComponent(tag)+"/user/"+this.model.get("user_id")+"/"+this.model.get("display_name"));
-                });
-                App.view.addAnswerer(tmpView.render().el);
-                if( App.get("cache").get("current_user") ){
-                    if( App.get("cache").get("current_user") === String(items.models[i].get("user_id")) ) {
-                        tmpView.setSelected(true);
+                App.view.clearAnswerers();
+                items.sort();
+                var tmpView;
+                if(items.models){
+                    for(var i=0; i<items.models.length; i++){
+                        tmpView = new StackUserView({model: items.models[i]});
+                        tmpView.on("select", function(){
+                            // StackAPI.questions_by_users(this.model.get("user_id"),{
+                            //  key: StackAPI_Key
+                            // }).done(initQuestions());
+                            this.clearSelectedSiblings();
+                            App.router.routeTo("tag/"+encodeURIComponent(tag)+"/user/"+this.model.get("user_id")+"/"+this.model.get("display_name"));
+                        });
+                        App.view.addAnswerer(tmpView.render().el);
+                        if( App.get("cache").get("current_user") ){
+                            if( App.get("cache").get("current_user") === String(items.models[i].get("user_id")) ) {
+                                tmpView.setSelected(true);
+                            }
+                        }
                     }
                 }
-            }
-            // console.log(results);
-        };
+                // console.log(results);
+            };
+        }
     };
 
     function initQuestionsWithAnswers(overwrite){
@@ -276,58 +280,81 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
         }
     };
 
-    function initTags(res){
-        var results = new StackResponse(res);
-        var cache = App.get("cache");
-        if(!cache.get("tags")){
-            cache.set("tags",results);
-        } else { 
-            var items = results.get("items");
-            var cacheItems = cache.get("tags").get("items");
-            if( items && items.length && 
-                !_.contains( _.pluck(cacheItems.toJSON(),'name'), _.pluck(items.toJSON(),'name') ) ){
-                cacheItems.add(items.models);
-            } else { 
-                return;
+    var Tags = {
+        getCacheItems: function(tag){
+            var tags = App.get("cache").get("tags");
+            if( tags && tags.get("items").length ) {
+                return tags.get("items").where({name: tag});
             }
-        }
-        // results.get("items").comparator = function
-        var items = results.get("items");
-        var tmpView;
-        for(var t in items.models){
-            tmpView = new StackTagView({model: items.models[t]});
-            tmpView.on("select", function(){
-                this.clearSelectedSiblings();
-                App.router.routeTo("tag/" + encodeURIComponent(this.model.get("name")));
-            });
-            App.view.addTag(tmpView);
-            // expects $el, must be done after render
-            if( cache.get("current_tag") ){
-                if( cache.get("current_tag") === items.models[t].get("name") ) {
-                    tmpView.setSelected(true);
+            return [];
+        },
+        inCache: function(tag){
+            var tagsCache = App.get("cache").get("tags");
+            if( tagsCache ) {
+                return this.getCacheItems(tag).length > 0;
+            }
+            return false;
+        },
+        clearSelections: function(){
+            var views = App.view.views.tags;
+            if(views && views.length){
+                views[0].clearSelectedSiblings();
+            }
+        },
+        init: function init(res){
+            var results = new StackResponse(res);
+            var cache = App.get("cache");
+            if(!cache.get("tags")){
+                cache.set("tags",results);
+            } else { 
+                var items = results.get("items");
+                var cacheItems = cache.get("tags").get("items");
+                if( items && items.length ){
+                    for(var k=0; k<items.length; k++){
+                        if( cacheItems.where({ name: items.models[k].get('name') }).length > 0 ){
+                            items.remove(items.models[k]);
+                        }
+                    }
+                    cacheItems.add(items.models);
+                } else { 
+                    return;
                 }
             }
-        }
-    }
-
-    function searchTags(text, filter){
-        var tagsCache = App.get("cache").get("tags");
-        var exists = false;
-        if( tagsCache && tagsCache.length > 0 ) {
-            exists = _.contains( _.pluck( tagsCache.get("items").toJSON() ,'name'), text );
-        }
-        if( !exists ) { 
-            trackEvt("Search_Tags",text);
-            var req = StackAPI.search_tags(text, { key: StackAPI_Key });
-            req.done(initTags)
-            if( filter ) { 
-                req.then(function(){
-                    App.view.filterTags(text);
+            // results.get("items").comparator = function
+            var items = results.get("items");
+            var tmpView;
+            for(var t in items.models){
+                tmpView = new StackTagView({model: items.models[t]});
+                tmpView.on("select", function(){
+                    this.clearSelectedSiblings();
+                    App.router.routeTo("tag/" + encodeURIComponent(this.model.get("name")));
                 });
+                App.view.addTag(tmpView);
+                // expects $el, must be done after render
+                if( cache.get("current_tag") ){
+                    if( cache.get("current_tag") === items.models[t].get("name") ) {
+                        tmpView.clearSelectedSiblings();
+                        tmpView.setSelected(true);
+                    }
+                }
             }
-            return req;
+        },
+        search: function search(text, filter){
+            if( !Tags.inCache(text) ) { 
+                trackEvt("Search_Tags",text);
+                var req = StackAPI.search_tags(text, { key: StackAPI_Key });
+                req.done(Tags.init)
+                if( filter ) { 
+                    req.then(function(){
+                        App.view.filterTags(text);
+                    });
+                }
+                return req;
+            } else { 
+                return this.getCacheItems(text);
+            }
         }
-    }
+    };
 
     // used in templates
     window.Format = {
@@ -379,20 +406,23 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
             this.app.view.removeIntroMessage();
             this.app.view.showNavbar();
             this.app.view.showTagsPanel();
-            StackAPI.tags({ key: StackAPI_Key }).done(initTags);
             trackEvt("Tags","Request");
+            return StackAPI.tags({ key: StackAPI_Key }).done(Tags.init);
         },
         tagRoute: function(tag){
-            if(_.isUndefined(this.app.get("cache").get("tags"))){
-                this.tagsRoute();
-            }
             tag = decodeURIComponent(tag);
-            var tagSearch = searchTags(tag); // kick off a search requet.
-            if( tagSearch ) { 
-                var appview = this.app.view;
-                tagSearch.then(function(){
-                    appview.setSearchFilter(tag);
+            if(_.isUndefined(this.app.get("cache").get("tags"))){
+                var req = this.tagsRoute();
+                req.then(function(){
+                    Tags.search(tag);
                 });
+            } else { 
+                var tags = Tags.search(tag);
+                if( !_.isUndefined(tags) && _.isArray(tags) && tags.length ) {
+                    tags[0].trigger("select");
+                } else { 
+                    Tags.clearSelections();
+                }
             }
             this.app.get("cache").set("current_tag",tag);
             this.app.view.setSearchFilter(tag);
@@ -400,7 +430,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
             this.app.view.hideQuestionsPanel();
             StackAPI.topanswerers_by_tag(tag, {
                 key: StackAPI_Key
-            }).done(initAnswerers(tag,true));
+            }).done(Answerers.init(tag,true));
             trackEvt("Top_Answerers_By_Tag","Request",tag);
         },
         starredQuestions: function(){
@@ -469,7 +499,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
         App.view.$el.find(".js-load-more-tags").on("click",function(evt){
             var tags = App.get("cache").get("tags").get("items");
             var pg = parseInt(tags.length / 40, 10) + 1; // apriori knowledge tags pagesize=40
-            StackAPI.tags({ key: StackAPI_Key, page: pg }).done(initTags);
+            StackAPI.tags({ key: StackAPI_Key, page: pg }).done(Tags.init);
             trackEvt("Tags","Request_More",pg);
         });
         App.view.$el.find(".js-load-more-answerers").on("click",function(evt){
@@ -478,7 +508,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
             StackAPI.topanswerers_by_tag(App.get("cache").get("current_tag"), {
                 key: StackAPI_Key,
                 page: pg
-            }).done(initAnswerers(App.get("cache").get("current_tag"),false));
+            }).done(Answerers.init(App.get("cache").get("current_tag"),false));
             trackEvt("Top_Answerers_By_Tag","Request_More",pg);
         });
         App.view.$el.find(".js-load-more-questions").on("click",function(evt){
@@ -499,7 +529,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
             switch (evt.which){
                 case 13:
                 case 14:
-                    searchTags(text, true);
+                    Tags.search(text, true);
                     break;
                 default:
                     App.view.filterTags(text);
@@ -510,7 +540,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
             var $input = App.view.$el.find("[name='js-search-tags-query']");
             var text = $input.val();
             if( text !== '' ) { 
-                var srch = searchTags(text, true);
+                var srch = Tags.search(text, true);
                 if(srch){
                     $this.attr("disabled", true);
                     srch.then(function(){

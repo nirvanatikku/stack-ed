@@ -186,6 +186,11 @@ define(['backbone', 'stackAPI', 'text!templates/user_view.html','text!templates/
             if(this.model){
                 this.on("showTag",this.showTag);
                 this.on("hideTag",this.hideTag);
+                var self = this;
+                this.model.on("select",function(){
+                    self.clearSelectedSiblings();
+                    self.setSelected(true);
+                });
             }
         },
         events:{
@@ -205,17 +210,17 @@ define(['backbone', 'stackAPI', 'text!templates/user_view.html','text!templates/
             }
         },
         setSelected:function(sel){
-            if( sel ) { //&& !this.$el.find(".tag-selection").is(":checked") 
-                this.$el.find(".tag-selection").attr("checked",true);
+            if( sel === true ) { //&& !this.$el.find(".tag-selection").is(":checked") 
+                this.$el.find(".tag-selection,:checked").attr("checked","checked");
                 this.$el.addClass("selected");
-            } else if ( !sel ) { 
-                this.$el.find(".tag-selection").attr("checked",false);
+            } else if ( sel === false ) { 
+                this.$el.find(".tag-selection,:checked").removeAttr("checked");
                 this.$el.removeClass("selected");
             }
         },
         clearSelectedSiblings: function(){
-            this.$el.siblings().find(":checkbox").attr("checked",false);
-            this.$el.siblings(".selected").removeClass("selected");
+            this.$el.siblings().find(".tag-selection").removeAttr("checked");
+            this.$el.siblings(".selected").addBack().removeClass("selected");
         },
         render:function(){
             this.$el.html( this.template(this.model.toJSON()) );
