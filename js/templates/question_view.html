@@ -16,7 +16,7 @@
 	</h2>
 	<div class="tags">
 	<% _.each(tags, function(tag) { %> 
-	    <span class='label <% if(tag===App.get("cache").current_tag) { %>label-info<% } else { %>label-inverse<% } %>'><a href='#/tag/<%=tag %>'><%= tag %></a></span>
+	    <span class='label <% if(tag===App.get("cache").get("current_tag")) { %>label-info<% } else { %>label-inverse<% } %>'><a href='#/tag/<%=tag %>'><%= tag %></a></span>
 	<% }); %>
 	</div>
 	<div class="viewcount">

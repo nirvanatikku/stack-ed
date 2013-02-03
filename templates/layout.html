@@ -92,14 +92,14 @@
               {% if user %}
                 <div>
                   <span  class="label label-inverse">
-                    {{ user.nickname }} &nbsp;
-              <a href='#my-starred-questions' rel="tooltip" class='badge badge-info js-stacked-user-num-starred' data-placement="bottom" data-original-title="Filter Favorite Questions" title="Filter Favorite Questions">{{ user.num_starred }}</a>
+                   <span class='pictos-icon' style='color:white;'>U</span> &nbsp; {{ user.nickname }} &nbsp;
+              <a href='#my-starred-questions' rel="tooltip" class='badge badge-info js-stacked-user-num-starred' data-placement="bottom" data-original-title="Filter Favorite Questions" title="Filter Favorite Questions"> {{ user.num_starred }}</a>
                   </span>
                   &nbsp; &nbsp; / &nbsp; &nbsp;
                   <a href="{{ logout_url }}" class="">Logout</a>
                 </div>
               {% else %}
-                <a href="{{ login_url }}" class="label label-inverse ui-signin-link">  Sign In
+                <a href="{{ login_url }}" class="label label-inverse ui-signin-link"> <span class='pictos-icon' style='color:white;'>U</span> &nbsp; Sign In
                 </a>
                 {% endif %}
             </div>

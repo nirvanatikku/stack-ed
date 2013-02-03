@@ -56,7 +56,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
         init: function init(tag, overwrite){
             return function(res){
                 var results = new StackResponse(res);
-                if( overwrite || !App.get("cache").get("answerers") ) {
+                if( overwrite || _.isUndefined(App.get("cache").get("answerers")) ) {
                     App.get("cache").set("answerers", results);
                 } else {
                     App.get("cache").answerers.get("items").add(results.get("items").models);
@@ -304,7 +304,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
         init: function init(res){
             var results = new StackResponse(res);
             var cache = App.get("cache");
-            if(!cache.get("tags")){
+            if(_.isUndefined(cache.get("tags"))){
                 cache.set("tags",results);
             } else { 
                 var items = results.get("items");
@@ -377,7 +377,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
             "*actions": "defaultRoute"
         },
         initialize: function(incoming){
-            _.bindAll(this, 'routeTo', 'defaultRoute', 'tagsRoute');
+            _.bindAll(this, 'routeTo', 'defaultRoute', 'tagsRoute', 'tagRoute', 'qTagUserRoute', 'starredQuestions','randomQuestions','aboutStackEd');
             if('app' in incoming){
                 this.app = incoming.app;
             }
@@ -413,7 +413,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
             tag = decodeURIComponent(tag);
             if(_.isUndefined(this.app.get("cache").get("tags"))){
                 var req = this.tagsRoute();
-                req.then(function(){
+                req.done(function(){
                     Tags.search(tag);
                 });
             } else { 
@@ -425,6 +425,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
                 }
             }
             this.app.get("cache").set("current_tag",tag);
+            this.app.get("cache").unset("current_user");
             this.app.view.setSearchFilter(tag);
             this.app.view.showAnswerersPanel();
             this.app.view.hideQuestionsPanel();
