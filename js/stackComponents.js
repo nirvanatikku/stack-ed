@@ -182,12 +182,26 @@ define(['backbone', 'stackAPI', 'text!templates/user_view.html','text!templates/
         className: "ui-tag",
         template: _.template(tagViewHTML),
         initialize:function(){
-            _.bindAll(this,'setSelected');
+            _.bindAll(this,'setSelected','showTag','hideTag');
+            if(this.model){
+                this.on("showTag",this.showTag);
+                this.on("hideTag",this.hideTag);
+            }
         },
         events:{
             "click .tag-selection":function(evt){
                 this.trigger("select", this.model);
                 this.setSelected(true);
+            }
+        },
+        showTag: function(){
+            if(this.$el.is(":not(:visible)")){
+                this.$el.show();
+            }
+        },
+        hideTag: function(){
+            if(this.$el.is(":visible")){
+                this.$el.hide();
             }
         },
         setSelected:function(sel){
@@ -248,7 +262,7 @@ define(['backbone', 'stackAPI', 'text!templates/user_view.html','text!templates/
         },
         initialize: function(response){
             if( typeof response !== 'undefined' ) { 
-                if('items' in response){
+                if('items' in response && response.items.length ){
                     if ('answer_id' in response['items'][0]){
                         this.set("items", new StackAnswers(response['items']));
                     } else if ('question_id' in response['items'][0] ) {

@@ -91,6 +91,14 @@ define(['jquery','underscore'], function(){
             },params));
             return this.__request__(url);
         },
+        "search_tags": function(srch, params){
+            var url = buildURL("tags/"+encodeURIComponent(srch)+"/info", _.extend({},{
+                "order": "desc",
+                "page": "1",
+                "sort": "popular"
+            },params));
+            return this.__request__(url);
+        },
         "questions": function(params){
             var url = buildURL("questions", params);
             return this.__request__(url);

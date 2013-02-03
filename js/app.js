@@ -1,9 +1,21 @@
 define(['backbone'],function(){
 
+    var AppCache = Backbone.Model.extend({
+        defaults:{ 
+            questions: undefined,
+            tags: undefined,
+            answerers: undefined,
+            answers: undefined,
+            current_tag: undefined,
+            current_user: undefined // this is the current user being searched
+        }
+    });
+
     var App = Backbone.Model.extend({
         defaults: { 
             user: undefined,
-            cache: { }
+            cache: new AppCache(),
+            view: undefined
         },
         initialize:function(incoming){
             this.view = new AppView({
@@ -16,6 +28,11 @@ define(['backbone'],function(){
     var AppView = Backbone.View.extend({
         $filters: null,
         $tags: null,
+        views: {
+            questions: [],
+            tags: [],
+            answerers: []
+        },
         setSearchFilter: function setSearchFilter(tag, user){
             var tmpl = _.template("&ndash; <div class='label'><%= lbl %></div>");
             var html = tmpl({lbl:tag});
@@ -25,24 +42,63 @@ define(['backbone'],function(){
             this.$filters.html(html);
         },
         initialize:function(){
-            _.bindAll(this,'domReady');
-            // 
+            _.bindAll(this,'domReady','filterTags');
             $(document).ready(this.domReady);
+            if(this.model){
+                // this.model.get("cache").on("change:current_tag",);
+            }
         },
-        addTag: function(tagEl){
-            this.$tags.append(tagEl);
+        addTag: function(tagView){
+            var prevCount = -1, count = -1;
+            // this should really be sorted; this will cause issues when adding custom sorting. ideally access collection?
+            var sortedTagViews = _.sortBy(this.views.tags, function(tagview){
+                return -tagview.model.get("count");
+            });
+            var $target = null, prevCount = -1;
+            var tvCount = tagView.model.get("count"), tv, count;
+            for(var i=0; i<sortedTagViews.length; i++){  // n isn't large.. assumes sorted desc count
+                tv = sortedTagViews[i];
+                count = tv.model.get("count");
+                if( count < prevCount && tvCount > count ) { 
+                    break;
+                } else { 
+                    prevCount = count;
+                    $target = tv.$el;
+                }
+            }
+            this.views.tags.push(tagView);
+            if( $target === null ) { 
+                this.$tags.append(tagView.render().el);
+            } else { 
+                $target.after(tagView.render().el);
+            }
+        },
+        filterTags: function(srch){
+            var tagViews = this.views.tags;
+            var tagView, name;
+            for(var i=0; i<tagViews.length; i++){
+                tagView = tagViews[i];
+                name = tagView.model.get("name");
+                if(name.toLowerCase().indexOf(srch.toLowerCase())>-1){ // strict. will want to normalize this.
+                    tagView.trigger("showTag");
+                } else { 
+                    tagView.trigger("hideTag");
+                }
+            }
         },
         addQuestion: function(qEl){
             this.$questions.append(qEl);
         },
         clearQuestions: function(){
             this.$questions.html("");
+            this.views.questions = [];
         },
         addAnswerer: function(aEl){
             this.$answerers.append(aEl);
         },
         clearAnswerers: function(){
             this.$answerers.html("");
+            this.views.answerers = [];
         },
         showAnswerersPanel: function(){
             this.$answerersContainer.show();

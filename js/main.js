@@ -9,6 +9,7 @@ require.config({
         "bootstrap":            "libs/bootstrap.min",
         "less":                 "libs/less.min",
         "moment":               "libs/moment",
+        "keymaster":            "libs/keymaster.min",
         "stackAPI":             "stackAPI",
         "stackComponents":      "stackComponents",
         "app":                  "app"
@@ -54,8 +55,8 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
     function initAnswerers(tag, overwrite){
         return function(res){
             var results = new StackResponse(res);
-            if( overwrite || !App.get("cache").answerers ) {
-                App.get("cache").answerers = results;
+            if( overwrite || !App.get("cache").get("answerers") ) {
+                App.get("cache").set("answerers", results);
             } else {
                 App.get("cache").answerers.get("items").add(results.get("items").models);
             }
@@ -88,8 +89,8 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
                     App.router.routeTo("tag/"+encodeURIComponent(tag)+"/user/"+this.model.get("user_id")+"/"+this.model.get("display_name"));
                 });
                 App.view.addAnswerer(tmpView.render().el);
-                if( App.get("cache").current_user ){
-                    if( App.get("cache").current_user === String(items.models[i].get("user_id")) ) {
+                if( App.get("cache").get("current_user") ){
+                    if( App.get("cache").get("current_user") === String(items.models[i].get("user_id")) ) {
                         tmpView.setSelected(true);
                     }
                 }
@@ -103,11 +104,11 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
             window.scrollTo(0, 0);
             var results = new StackResponse(res);
             var items = results.get("items");
-            if (App.get("cache").answers && !overwrite){
-                App.get("cache").answers.get("items").add(items.models);
+            if (App.get("cache").get("answers") && !overwrite){
+                App.get("cache").get("answers").get("items").add(items.models);
             } else if(overwrite){
                 App.view.clearQuestions();
-                App.get("cache").answers = results;
+                App.get("cache").set("answers", results);
             }  
             var questionIDs = [];
             _.each(items.models,function(m){
@@ -121,7 +122,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
 
     function initQuestions(res){
         var results = new StackResponse(res);
-        App.get("cache").questions = results;
+        App.get("cache").set("questions", results);
         results.get("items").comparator = function(m1,m2){
             var c = function(c1,c2){
                 if (c1 < c2) return -1;
@@ -277,10 +278,18 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
 
     function initTags(res){
         var results = new StackResponse(res);
-        if(!App.get("cache").tags){
-            App.get("cache").tags = results;
+        var cache = App.get("cache");
+        if(!cache.get("tags")){
+            cache.set("tags",results);
         } else { 
-            App.get("cache").tags.get("items").add(results.get("items").models);
+            var items = results.get("items");
+            var cacheItems = cache.get("tags").get("items");
+            if( items && items.length && 
+                !_.contains( _.pluck(cacheItems.toJSON(),'name'), _.pluck(items.toJSON(),'name') ) ){
+                cacheItems.add(items.models);
+            } else { 
+                return;
+            }
         }
         // results.get("items").comparator = function
         var items = results.get("items");
@@ -291,13 +300,26 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
                 this.clearSelectedSiblings();
                 App.router.routeTo("tag/" + encodeURIComponent(this.model.get("name")));
             });
-            App.view.addTag(tmpView.render().el);
+            App.view.addTag(tmpView);
             // expects $el, must be done after render
-            if( App.get("cache").current_tag ){
-                if( App.get("cache").current_tag === items.models[t].get("name") ) {
+            if( cache.get("current_tag") ){
+                if( cache.get("current_tag") === items.models[t].get("name") ) {
                     tmpView.setSelected(true);
                 }
             }
+        }
+    }
+
+    function searchTags(text){
+        var items = App.get("cache").get("tags").get("items").toJSON();
+        if( ! _.contains( _.pluck(items,'name'), text ) ){
+            trackEvt("Search_Tags",text);
+            var req = StackAPI.search_tags(text, { key: StackAPI_Key });
+            req.done(initTags)
+            req.then(function(){
+                App.view.filterTags(text);
+            });
+            return req;
         }
     }
 
@@ -334,12 +356,12 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
             // eventually replace with this.route
         },
         qTagUserRoute: function(tag,user_id,display_name){
-            if(_.isUndefined(this.app.get("cache").tags)){
+            if(_.isUndefined(this.app.get("cache").get("tags"))){
                 this.tagRoute(tag);
             }
             tag = decodeURIComponent(tag);
-            this.app.get("cache").current_tag = tag;
-            this.app.get("cache").current_user = user_id;
+            this.app.get("cache").set("current_tag", tag);
+            this.app.get("cache").set("current_user", user_id);
             this.app.view.setSearchFilter(tag, display_name);
             this.app.view.showQuestionsPanel();
             StackAPI.topanswers_by_users(user_id,encodeURIComponent(tag),{
@@ -355,11 +377,11 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
             trackEvt("Tags","Request");
         },
         tagRoute: function(tag){
-            if(_.isUndefined(this.app.get("cache").tags)){
+            if(_.isUndefined(this.app.get("cache").get("tags"))){
                 this.tagsRoute();
             }
             tag = decodeURIComponent(tag);
-            this.app.get("cache").current_tag = tag;
+            this.app.get("cache").set("current_tag",tag);
             this.app.view.setSearchFilter(tag);
             this.app.view.showAnswerersPanel();
             this.app.view.hideQuestionsPanel();
@@ -370,7 +392,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
             trackEvt("Top_Answerers_By_Tag","Request",tag);
         },
         starredQuestions: function(){
-            if(_.isUndefined(this.app.get("cache").tags)){
+            if(_.isUndefined(this.app.get("cache").get("tags"))){
                 this.tagsRoute();
             }
             this.app.view.showQuestionsPanel();
@@ -432,32 +454,59 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
             });
             trackEvt("Begin","Click");
         });
-        App.view.$el.find(".js-load-more-tags").on("click",function(){
-            var tags = App.get("cache").tags.get("items");
+        App.view.$el.find(".js-load-more-tags").on("click",function(evt){
+            var tags = App.get("cache").get("tags").get("items");
             var pg = parseInt(tags.length / 40, 10) + 1; // apriori knowledge tags pagesize=40
             StackAPI.tags({ key: StackAPI_Key, page: pg }).done(initTags);
             trackEvt("Tags","Request_More",pg);
         });
-        App.view.$el.find(".js-load-more-answerers").on("click",function(){
-            var answerers = App.get("cache").answerers.get("items");
+        App.view.$el.find(".js-load-more-answerers").on("click",function(evt){
+            var answerers = App.get("cache").get("answerers").get("items");
             var pg = parseInt(answerers.length / 30, 10) + 1; // answerers pagesize=30
-            StackAPI.topanswerers_by_tag(App.get("cache").current_tag, {
+            StackAPI.topanswerers_by_tag(App.get("cache").get("current_tag"), {
                 key: StackAPI_Key,
                 page: pg
-            }).done(initAnswerers(App.get("cache").current_tag,false));
+            }).done(initAnswerers(App.get("cache").get("current_tag"),false));
             trackEvt("Top_Answerers_By_Tag","Request_More",pg);
         });
-        App.view.$el.find(".js-load-more-questions").on("click",function(){
+        App.view.$el.find(".js-load-more-questions").on("click",function(evt){
             // Need to figure out what's happening with pagination here... 
-            var answers = App.get("cache").answers.get("items");
+            var answers = App.get("cache").get("questions").get("items");
             var pg = parseInt(answers.length / 20, 10) + 1; // answers pgsize = 20
-            StackAPI.topanswers_by_users(App.get("cache").current_user,encodeURIComponent(App.get("cache").current_tag),{
+            StackAPI.topanswers_by_users(App.get("cache").get("current_user"),encodeURIComponent(App.get("cache").get("current_tag")),{
                 key: StackAPI_Key,
                 page: pg
             }).done(initQuestionsWithAnswers(false));
             trackEvt("Top_Answerers_By_Users","Request_More",pg);
         });
-
+        App.view.$el.find(".js-search-toggle-button").on("click", function(evt){
+            $(".js-search-form").toggleClass("open");
+        });
+        App.view.$el.find("[name='js-search-tags-query']").on("keyup",function(evt){
+            var $this = $(this), text = $this.val();
+            switch (evt.which){
+                case 13:
+                case 14:
+                    searchTags(text);
+                    break;
+                default:
+                    App.view.filterTags(text);
+            };
+        });
+        App.view.$el.find(".js-search-tags-query-button").on("click",function(evt){
+            var $this = $(this);
+            var $input = App.view.$el.find("[name='js-search-tags-query']");
+            var text = $input.val();
+            if( text !== '' ) { 
+                var srch = searchTags(text);
+                if(srch){
+                    $this.attr("disabled", true);
+                    srch.then(function(){
+                        $this.attr("disabled", false);
+                    });
+                }
+            }
+        });
     });
 
 });

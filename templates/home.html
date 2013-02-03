@@ -34,10 +34,28 @@
 
     <div class="ui-tags-container js-tags-container span2">
 
-        <h1>Pick a Tag</h1>
-        <small class='ui-sort-info'>Sorted by Popularity</small>
-
-        <br/>
+        <h1>
+            Pick a Tag 
+            <span class='js-search-toggle-button ui-search-toggle-button pictos-icon pull-right'>s</span>
+        </h1>
+       <!--  <form class="form-search"> -->
+       <div class="ui-search-form js-search-form">
+            <div class="input-append  top-line bottom-line">
+                <input name='js-search-tags-query' class="input-medium" type="text" placeholder="Tag, i.e. jsonp, security">
+                <button class="btn js-search-tags-query-button" type="button">Search</button>
+            </div>
+        </div>
+       <!--  </form> -->
+        <small class='ui-sort-info'>
+            Sorted by Popularity
+                 <!-- <div class='ui-sort-info row'>
+                    <div class="btn-group" data-toggle="buttons-radio">
+                      <button type="button" class="btn btn-small">Popularity</button>
+                      <button type="button" class="btn btn-small">Activity</button>
+                      <button type="button" class="btn btn-small">Name</button>
+                    </div>
+                </div> -->
+        </small>
 
         <div class="js-tags">
 
