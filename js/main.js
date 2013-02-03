@@ -310,15 +310,21 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
         }
     }
 
-    function searchTags(text){
-        var items = App.get("cache").get("tags").get("items").toJSON();
-        if( ! _.contains( _.pluck(items,'name'), text ) ){
+    function searchTags(text, filter){
+        var tagsCache = App.get("cache").get("tags");
+        var exists = false;
+        if( tagsCache && tagsCache.length > 0 ) {
+            exists = _.contains( _.pluck( tagsCache.get("items").toJSON() ,'name'), text );
+        }
+        if( !exists ) { 
             trackEvt("Search_Tags",text);
             var req = StackAPI.search_tags(text, { key: StackAPI_Key });
             req.done(initTags)
-            req.then(function(){
-                App.view.filterTags(text);
-            });
+            if( filter ) { 
+                req.then(function(){
+                    App.view.filterTags(text);
+                });
+            }
             return req;
         }
     }
@@ -381,6 +387,13 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
                 this.tagsRoute();
             }
             tag = decodeURIComponent(tag);
+            var tagSearch = searchTags(tag); // kick off a search requet.
+            if( tagSearch ) { 
+                var appview = this.app.view;
+                tagSearch.then(function(){
+                    appview.setSearchFilter(tag);
+                });
+            }
             this.app.get("cache").set("current_tag",tag);
             this.app.view.setSearchFilter(tag);
             this.app.view.showAnswerersPanel();
@@ -388,7 +401,6 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
             StackAPI.topanswerers_by_tag(tag, {
                 key: StackAPI_Key
             }).done(initAnswerers(tag,true));
-
             trackEvt("Top_Answerers_By_Tag","Request",tag);
         },
         starredQuestions: function(){
@@ -487,7 +499,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
             switch (evt.which){
                 case 13:
                 case 14:
-                    searchTags(text);
+                    searchTags(text, true);
                     break;
                 default:
                     App.view.filterTags(text);
@@ -498,7 +510,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
             var $input = App.view.$el.find("[name='js-search-tags-query']");
             var text = $input.val();
             if( text !== '' ) { 
-                var srch = searchTags(text);
+                var srch = searchTags(text, true);
                 if(srch){
                     $this.attr("disabled", true);
                     srch.then(function(){
