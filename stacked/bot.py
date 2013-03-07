@@ -12,6 +12,8 @@ import httplib2
 import json
 import random 
 import tweepy
+from bs4 import BeautifulSoup
+from bs4 import BeautifulStoneSoup
 from datetime import timedelta
 from apiclient.discovery import build
 from google.appengine.ext.webapp import template
@@ -174,9 +176,9 @@ class SeedTweetsUtil:
             self.store_pending_tweets(results)
             return True
         except Exception as e:
+            # print e
             logger.debug(str(e)) 
             return False
-        
     """ 
     action= self.model.get("title")+"|"+self.model.get("link")
     label= self.model.get("tags").join("|")
@@ -191,7 +193,8 @@ class SeedTweetsUtil:
                 logger.debug( '\t'.join(row) )
                 title_and_link = row[0]
                 firstPart = title_and_link.index("|") 
-                title = title_and_link[0:firstPart]
+                title = self.parse_string(title_and_link[0:firstPart])
+                logger.info(title)
                 link = title_and_link[firstPart+1:]
                 tags = row[1]
                 view_count = long(row[2])
@@ -203,7 +206,11 @@ class SeedTweetsUtil:
         pt.put()
         logger.info("Adding a PendingTweet (%s) " % pt)
         return 1
-
+    
+    def parse_string(self, s):
+        decoded = BeautifulSoup(s,"html")
+        return decoded.contents[0].text if decoded.contents.count > 0 else s
+        
 
 class BaseHandler(webapp2.RequestHandler):
 
