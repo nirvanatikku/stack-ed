@@ -28,7 +28,7 @@ require.config({
     stack-ed.com
  */
 
-require(["stackComponents","app","moment","bootstrap"], function(components, App){
+require(["stackComponents","app","moment","bootstrap","underscore"], function(components, App){
 
     var trackEvt = function trackEvt(category, action, label){
         try { 
@@ -47,7 +47,10 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
         StackTag = components.StackTag,
         StackTags = components.StackTags,
         StackTagView = components.StackTagView,
-        StackResponse = components.StackResponse;
+        StackResponse = components.StackResponse,
+        StackSite = components.StackSite,
+        StackSites = components.StackSites,
+        StackSitesView = components.StackSitesView;
     var StackAPI = components.API;
 
 	var StackAPI_Key = "[provide a stack overflow key]";
@@ -88,7 +91,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
                             //  key: StackAPI_Key
                             // }).done(initQuestions());
                             this.clearSelectedSiblings();
-                            App.router.routeTo("tag/"+encodeURIComponent(tag)+"/user/"+this.model.get("user_id")+"/"+this.model.get("display_name"));
+                            App.router.routeTo("site/"+App.get("site").get("api_site_parameter")+"/tag/"+encodeURIComponent(tag)+"/user/"+this.model.get("user_id")+"/"+this.model.get("display_name"));
                         });
                         App.view.addAnswerer(tmpView.render().el);
                         if( App.get("cache").get("current_user") ){
@@ -98,12 +101,13 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
                         }
                     }
                 }
+                App.view.showAnswerersPanel();
                 // console.log(results);
             };
         }
     };
 
-    function initQuestionsWithAnswers(overwrite){
+    function initQuestionsWithAnswerers(overwrite){
         return function(res){
             window.scrollTo(0, 0);
             var results = new StackResponse(res);
@@ -125,16 +129,46 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
     }
 
     function initQuestions(res){
+
+        //
+        // TODO: fix this....
+        //
         var results = new StackResponse(res);
+        //
+        // right now assumes initQuestions is called from initQuestionsWithAnswerers
+        // do merge of answers<->question; i will refactor this code, but i'm trying to get this out the door..
+        var mergeElements = ["answer_id","is_accepted","up_vote_count","down_vote_count","score"];
+        var acceptedAnswers = App.get("cache").get("answers").get("items");
+        var _a, _q, qid, _answer, _question;
+        for(var i=0; i<acceptedAnswers.length; i++){
+            qid = acceptedAnswers.models[i].get("question_id");
+            _a = acceptedAnswers.where({question_id:qid});
+            _q = results.get("items").where({question_id:qid});
+            if(_a.length>0 && _q.length>0){
+                _answer = _a[0].toJSON();
+                _question = _q[0].toJSON();
+                for(var key in mergeElements){
+                    // console.log(mergeElements[key],_answer[mergeElements[key]]);
+                    _q[0].set( mergeElements[key], _answer[mergeElements[key]] );
+                }
+            }
+        }
+
         App.get("cache").set("questions", results);
         results.get("items").comparator = function(m1,m2){
             var c = function(c1,c2){
-                if (c1 < c2) return -1;
-                if (c1 > c2) return +1;
+                var c1 = typeof c1 === "boolean" ? (c1?1:0) : c1;
+                var c2 = typeof c2 === "boolean" ? (c2?1:0) : c2;
+                if (c1 < c2) return 1;
+                if (c1 > c2) return -1;
                 return 0;
             };
-            return _.reduce(["is_answered","view_count","answer_count"], function (acc, comp) {
-                return acc !== 0 ? acc : -c(m1.get(comp), m2.get(comp));
+            return _.reduce(["is_accepted","view_count","score"], function (acc, comp) {
+                var ret = acc === 0 ? -c(m1.get(comp), m2.get(comp)) : acc;
+                if(comp === 'score'){
+                    ret *= -1;
+                }
+                return ret;
             }, 0);
         };
         results.get("items").sort();
@@ -327,7 +361,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
                 tmpView = new StackTagView({model: items.models[t]});
                 tmpView.on("select", function(){
                     this.clearSelectedSiblings();
-                    App.router.routeTo("tag/" + encodeURIComponent(this.model.get("name")));
+                    App.router.routeTo("site/"+App.get("site").get("api_site_parameter")+"/tag/" + encodeURIComponent(this.model.get("name")));
                 });
                 App.view.addTag(tmpView);
                 // expects $el, must be done after render
@@ -367,10 +401,25 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
     };
     window.App = App; // global ref to the app
 
+    /*
+        Stack-Ed's Router can be used in two ways. The first involves routing the 
+        window location href to the desired route. The second involves invoking the
+        methods on the router, directly. 
+            + Sites are only loaded once and cached
+            + If tags, answerers or questions are requested, the following checks are performed
+                - if sites are not initialized, every method will attach a done callback
+                    to the deferred request
+                - if tags are required and aren't cached, fetch and cache them. create a deferred request 
+                    and let other methods resolve their needs as appropriate
+                - if sites are init'd, and tags exist, the methods perform their operations 
+     */
     var Router = Backbone.Router.extend({
         routes: { 
-            "tag/:tag/user/:user_id/:display_name": "qTagUserRoute",
-            "tag/:tag": "tagRoute",
+            "tag/:tag/user/:user_id/:display_name":"_qTagUserRoute", // legacy
+            "tag/:tag":"_tagRoute", // legacy
+            "site/:site/tag/:tag/user/:user_id/:display_name": "qTagUserRoute",
+            "site/:site/tag/:tag": "tagRoute",
+            "site/:site": "siteRoute",
             "my-starred-questions": "starredQuestions",
             "random": "randomQuestions",
             "about": "aboutStackEd",
@@ -383,38 +432,130 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
             }
             Backbone.history.start(); // kick things off. {pushState: true}
         },
+        requesting_sites:false,
+        requesting_tags:false,
+        initSites: function(){
+            if(this.requesting_sites){
+                return this.requesting_sites;
+            }
+            var self = this;
+            return this.requesting_sites = StackAPI.sites({key:StackAPI_Key,pagesize:200}).then(function(res){
+                var _items = res['items'], items = [];
+                for(var i=0; i<_items.length; i++){
+                    if(_items[i].name.indexOf('Meta')===-1){
+                        items.push(_items[i]);
+                    }
+                }
+                App.sites = new StackSites(items);
+                App.view.sites = new StackSitesView({
+                    el: $("#js-sites-toggle")[0],
+                    collection: App.sites
+                });
+                App.view.sites.render();
+                App.view.sites.on("pick_site",function(site){
+                    App.router.routeTo("site/"+site.get("api_site_parameter"));
+                });
+            }).done(function(){
+                (function(){self.requesting_sites = false;})();
+            });
+        },
         routeTo: function(baseUrl, qryParams){
             if( baseUrl === "home" ) baseUrl = "";
             window.location.hash = baseUrl + (qryParams||"");
             // eventually replace with this.route
         },
-        qTagUserRoute: function(tag,user_id,display_name){
+        _qTagUserRoute: function(tag,user_id,display_name){
+            return this.qTagUserRoute('stackoverflow',tag,user_id,display_name);
+        },
+        qTagUserRoute: function(site, tag, user_id, display_name){
+            var dReq = null;
             if(_.isUndefined(this.app.get("cache").get("tags"))){
-                this.tagRoute(tag);
+                dReq = this.tagRoute(site, tag, !_.isUndefined(user_id));
             }
             tag = decodeURIComponent(tag);
             this.app.get("cache").set("current_tag", tag);
             this.app.get("cache").set("current_user", user_id);
             this.app.view.setSearchFilter(tag, display_name);
-            this.app.view.showQuestionsPanel();
+            var self = this;
+            if(dReq != null){
+                dReq.done(function(){
+                    StackAPI.topanswers_by_users(user_id,encodeURIComponent(tag),{
+                        key: StackAPI_Key
+                    }).then(initQuestionsWithAnswerers(true)).done(function(){
+                        (function(){
+                            self.app.view.showAnswerersPanel();
+                            self.app.view.showQuestionsPanel();
+                        })();
+                    });
+                    trackEvt("Top_Answers_By_Users","Request",tag+":"+user_id);
+                });
+                return dReq;
+            }
             StackAPI.topanswers_by_users(user_id,encodeURIComponent(tag),{
                 key: StackAPI_Key
-            }).done(initQuestionsWithAnswers(true));
+            }).then(initQuestionsWithAnswerers(true)).done(function(){
+                (function(){
+                    self.app.view.showAnswerersPanel();
+                    self.app.view.showQuestionsPanel();
+                })();
+            });
             trackEvt("Top_Answers_By_Users","Request",tag+":"+user_id);
         },
-        tagsRoute: function(){
+        siteRoute: function(site){
+            if(App.sites == null){
+                var self = this;
+                return this.initSites().done(function(){
+                    (function(){
+                        self.siteRoute(site);
+                    })();
+                });
+            }
+            this.app.set("site", this.app.sites.where({api_site_parameter:decodeURIComponent(site || StackAPI.DEFAULT_SITE)})[0]);
+            this.tagsRoute(site, true);
+        },
+        tagsRoute: function(site, is_fresh_set){
+            if(!App.get("site")){
+                var self = this;
+                return this.siteRoute(site).done(function(){
+                    (function(){
+                        self.tagsRoute(is_fresh_set);
+                    })();
+                });
+            }
+            if(this.requesting_tags) return this.requesting_tags;
+            // make sure we dont have a pending request
             this.app.view.removeIntroMessage();
+            this.app.view.initSocialMedia();
             this.app.view.showNavbar();
             this.app.view.showTagsPanel();
+            if(is_fresh_set === true){
+                this.app.view.clearTags();
+                this.app.view.hideAnswerersPanel();
+                this.app.view.hideQuestionsPanel();
+            }
             trackEvt("Tags","Request");
-            return StackAPI.tags({ key: StackAPI_Key }).done(Tags.init);
+            var self = this;
+            return this.requesting_tags = StackAPI.tags({ key: StackAPI_Key }).then(Tags.init).done(function(){
+                (function(){
+                    self.requesting_tags = false;
+                })();
+            });
         },
-        tagRoute: function(tag){
+        _tagRoute: function(tag){
+            return this.tagRoute('stackoverflow',tag);
+        },
+        tagRoute: function(site,tag,has_current_user){
             tag = decodeURIComponent(tag);
+            var dReq = null; // TODO: implement deferreds across the board + with 'site' param
             if(_.isUndefined(this.app.get("cache").get("tags"))){
-                var req = this.tagsRoute();
-                req.done(function(){
+                dReq = this.tagsRoute(site);
+                var self = this;
+                return dReq.then(function(){
                     Tags.search(tag);
+                }).done(function(){
+                    (function(){
+                        self.tagRoute(site,tag,has_current_user);
+                    })();
                 });
             } else { 
                 var tags = Tags.search(tag);
@@ -425,18 +566,19 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
                 }
             }
             this.app.get("cache").set("current_tag",tag);
-            this.app.get("cache").unset("current_user");
             this.app.view.setSearchFilter(tag);
-            this.app.view.showAnswerersPanel();
-            this.app.view.hideQuestionsPanel();
-            StackAPI.topanswerers_by_tag(tag, {
+            if(has_current_user !== true){
+                this.app.get("cache").unset("current_user");
+                this.app.view.hideQuestionsPanel();
+            }
+            trackEvt("Top_Answerers_By_Tag","Request",tag);
+            return StackAPI.topanswerers_by_tag(tag, {
                 key: StackAPI_Key
             }).done(Answerers.init(tag,true));
-            trackEvt("Top_Answerers_By_Tag","Request",tag);
         },
         starredQuestions: function(){
             if(_.isUndefined(this.app.get("cache").get("tags"))){
-                this.tagsRoute();
+                this.tagsRoute(); // TODo: fix this
             }
             this.app.view.showQuestionsPanel();
             this.app.view.setSearchFilter('my starred questions');
@@ -446,7 +588,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
                 if( ids.length ) { 
                     StackAPI.questions_by_ids(ids.join(";"), {
                         key: StackAPI_Key
-                    }).done(initQuestionsWithAnswers(true));
+                    }).done(initQuestionsWithAnswerers(true));
                     trackEvt("Questions_By_Ids","Starred_Questions");
                 }
             }
@@ -460,9 +602,10 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
             trackEvt("About","Overlay");
         },
         defaultRoute: function(target){
-            // this.tagsRoute();
+            // this.siteRoute();
             if(this.app.get("user")){
-                this.tagsRoute();
+                this.siteRoute();
+                // this.tagsRoute(); //after sites load
             }
         }
     });
@@ -486,13 +629,53 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
             });
         }
 
-        App.router = new Router({ app: App });
+        App.sites = null;
 
+        App.on('change:site',function(){
+            $("#js-current-site").html(this.currentSiteIconHTML());
+            $(".js-site-name").text(this.get("site").get("name"));
+            StackAPI.DEFAULT_SITE = this.get("site").get("api_site_parameter");
+            this.get("cache").unset("tags");
+        });
+
+        App.router = new Router({ app: App });
+        App.router.initSites().then(function(){
+            if(!App.get("cache").get("tags")){
+                var m = App.sites.models;
+                function nameTimer(){
+                    setTimeout(function(){
+                        var name = m[parseInt(Math.random()*m.length,10)].get('name');
+                        $("#js-site-name")
+                            .animate({opacity:0.5},400,function(){
+                                $("#js-site-name").text( name );
+                            })
+                            .animate({opacity:1},400,function(){
+                                if(!App.get("cache").get("tags")){
+                                    nameTimer();
+                                }
+                            });
+                    },1000);
+                }
+                nameTimer();
+            }
+        });
+        
+        //
+        // everything in here describes how the ui behaves. 
+        // below are additional event handlers that exist in the HTML
+        // i'm also adding analytics as part of the events for user behavior tracking.
+        //
         App.view.$el.find(".start").on("click",function(){
             $(".intro-message").animate({
                 opacity:0
             },1200,function(){
                 $(this).remove();
+                App.view.initSocialMedia();
+                var dR = App.router.siteRoute();
+                if(dR){
+                    dR.done(function(){App.router.tagsRoute();});
+                    return;
+                }
                 App.router.tagsRoute();
             });
             trackEvt("Begin","Click");
@@ -519,7 +702,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
             StackAPI.topanswers_by_users(App.get("cache").get("current_user"),encodeURIComponent(App.get("cache").get("current_tag")),{
                 key: StackAPI_Key,
                 page: pg
-            }).done(initQuestionsWithAnswers(false));
+            }).done(initQuestionsWithAnswerers(false));
             trackEvt("Top_Answerers_By_Users","Request_More",pg);
         });
         App.view.$el.find(".js-search-toggle-button").on("click", function(evt){
@@ -550,6 +733,7 @@ require(["stackComponents","app","moment","bootstrap"], function(components, App
                 }
             }
         });
+
     });
 
 });

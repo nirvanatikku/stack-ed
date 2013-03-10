@@ -1,5 +1,6 @@
 define(['backbone'],function(){
 
+    "use strict";
     var AppCache = Backbone.Model.extend({
         defaults:{ 
             questions: undefined,
@@ -13,17 +14,24 @@ define(['backbone'],function(){
 
     var App = Backbone.Model.extend({
         defaults: { 
+            site: undefined,
             user: undefined,
             cache: new AppCache(),
             view: undefined
         },
+        currentSiteIconHTML: function(){
+            return "<img class='ui-site-icon' src='"+this.get("site").get('high_resolution_icon_url')+"'/>";
+        },
         initialize:function(incoming){
+            _.bindAll(this, 'currentSiteIconHTML');
             this.view = new AppView({
                 el: document.body,
                 model: this
             });
         }
     });
+
+    var social_media_inited = false;
 
     var AppView = Backbone.View.extend({
         $filters: null,
@@ -73,6 +81,13 @@ define(['backbone'],function(){
                 $target.after(tagView.render().el);
             }
         },
+        clearTags: function(){
+            var tagViews = this.views.tags;
+            this.views.tags = [];
+            for(var tv in tagViews){
+                tagViews[tv].$el.remove();
+            }
+        },
         filterTags: function(srch){
             var tagViews = this.views.tags;
             var tagView, name;
@@ -86,42 +101,61 @@ define(['backbone'],function(){
                 }
             }
         },
-        addQuestion: function(qEl){
+        addQuestion: function addQuestion(qEl){
             this.$questions.append(qEl);
         },
-        clearQuestions: function(){
+        clearQuestions: function clearQuestions(){
             this.$questions.html("");
             this.views.questions = [];
         },
-        addAnswerer: function(aEl){
+        addAnswerer: function addAnswerer(aEl){
             this.$answerers.append(aEl);
         },
-        clearAnswerers: function(){
+        clearAnswerers: function clearAnswerers(){
             this.$answerers.html("");
             this.views.answerers = [];
         },
-        showAnswerersPanel: function(){
+        showAnswerersPanel: function showAnswerersPanel(){
             this.$answerersContainer.show();
         },
-        hideAnswerersPanel: function(){
+        hideAnswerersPanel: function hideAnswerersPanel(){
             this.$answerersContainer.hide();
         },
-        showQuestionsPanel: function(){
+        showQuestionsPanel: function showQuestionsPanel(){
             this.$questionsContainer.show();
         },
-        hideQuestionsPanel: function(){
+        hideQuestionsPanel: function hideQuestionsPanel(){
             this.$questionsContainer.hide();
         },
-        showTagsPanel: function(){
+        showTagsPanel: function showTagsPanel(){
             this.$tagsContainer.show();
         },
-        removeIntroMessage: function(){
+        removeIntroMessage: function removeIntroMessage(){
             this.$el.find(".intro-message").remove();
         },
-        showNavbar:function(){
+        showNavbar:function showNavbar(){
             this.$navbar.css("opacity","1");
         },
-        domReady: function(){
+        initSocialMedia: function initSocialMedia(){
+            if(!social_media_inited){
+                social_media_inited = true;
+                (function(d,s,id){
+                    var js,fjs=d.getElementsByTagName(s)[0];
+                    if(!d.getElementById(id)){
+                        js=d.createElement(s);
+                        js.id=id;
+                        js.src="//platform.twitter.com/widgets.js";
+                        fjs.parentNode.insertBefore(js,fjs);
+                    }
+                })(document,"script","twitter-wjs");
+                (function() {
+                    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                    po.src = 'https://apis.google.com/js/plusone.js';
+                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                })();
+            }
+        },
+        domReady: function domReady(){
             this.$filters = this.$el.find(".js-filter-criteria");
             this.$tags = this.$el.find(".js-tags");
             this.$questions = this.$el.find(".js-questions");

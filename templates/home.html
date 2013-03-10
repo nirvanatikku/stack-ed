@@ -3,29 +3,21 @@
     <div class="intro-message">
 
         <div class="hero-unit">
-            <h1 class="page-header">Stack-Ed</h1>
+            <h1 class="page-header">Stack-Ed <a class='pull-right' href='https://itunes.apple.com/us/app/stack-ed/id612500156'><img src="/img/appstore.png" width='135px' height='40px'></a></h1>
             <br/>
             <img src='/img/screenshot.png' width="600px">
             <p>
                 <br/>
             <p>
-            <big>The <span class='highlight'>most reputable</span> <span class='highlight underline'>StackOverflow</span> <span class='highlight'>contributors</span> and their <span class='highlight'>accepted answers</span> to questions.</big>
+            <big>The <span class='highlight'>most reputable</span> <span id='js-site-name' class=' highlight underline'>StackOverflow</span> <span class='highlight'>contributors</span> and their <span class='highlight'>accepted answers</span> to questions.</big>
             </p>
             <br/>
             <div class="pull-right">
-                <a href="https://twitter.com/share" class="twitter-share-button" data-via="ntikku">Tweet</a>
-                <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+                <!-- <a href="https://twitter.com/share" class="twitter-share-button" data-via="ntikku">Tweet</a> -->
                             <br/>
                             <!-- Place this tag where you want the +1 button to render. -->
-                <div class="g-plusone"></div>
+                <!-- <div class="g-plusone"></div> -->
                 <!-- Place this tag after the last +1 button tag. -->
-                <script type="text/javascript">
-                  (function() {
-                    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-                    po.src = 'https://apis.google.com/js/plusone.js';
-                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-                  })();
-                </script>
             </div>
             <p><a class="btn btn-info btn-large start">Get Started &raquo; </a></p>
       </div>
@@ -83,12 +75,12 @@
     <div class="ui-questions-container js-questions-container span7">
 
         <h1>
-            Stack Overflow Questions
+            <span class="js-site-name"></span> Questions
             <div class="ui-filter-criteria js-filter-criteria">
             </div>
         </h1>
 
-        <small class='ui-sort-info'>Sorted by Views, Answer Count</small>
+        <small class='ui-sort-info'>Sorted by Views, Answer Up Votes</small>
 
         <div class="js-questions"></div>
 <!--  TODO: figure out why pagination isn't working properly.

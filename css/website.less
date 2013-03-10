@@ -85,6 +85,7 @@ h1 small { font-size:24px; letter-spacing:0px; }
     .container .credit { margin: 20px 0; font-size:0.9em; }
 }
 .ui-navbar { opacity:0; }
+.navbar-inner { .brand { margin-top:2px; } }
 .navbar-inverese .nav { margin:5px 10px 0px 0px; }
 .navbar-inverse {
     .navbar-inner { padding:10px 0px 0px 0px; .box-shadow(none); border-bottom: 4px solid @navbarBorderColor; }
@@ -103,6 +104,14 @@ h1 small { font-size:24px; letter-spacing:0px; }
 }
 .top-line { border-top:1px solid @lineBorderColor; padding-top:10px; }
 .bottom-line { border-bottom:1px solid @lineBorderColor; padding-bottom:10px; }
+
+.ui-stack-site { padding:2px 6px; .ui-site-icon { width:25px; height:25px; margin-right:8px; } }
+img.ui-site-icon { width:50px; height:50px; vertical-align:middle; }
+.ui-sites-toggle { max-height: 330px; overflow-y: scroll; }
+.ui-site-toggle-list { 
+    &:hover { background:rgba(125,125,125,0.2); }
+}
+.navbar-inverse .nav > li > a.ui-current-site { padding: 0px; margin:0px; margin-top: -5px; }
 
 .pictos-icon {
     cursor:pointer; font-family: "pictos"; font-size:1em;

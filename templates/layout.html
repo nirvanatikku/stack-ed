@@ -25,7 +25,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
   <title>Stack-Ed. Stand on the shoulders of the Stack Overflow Giants.</title>
-  <meta name="description" content="The most reputable StackOverflow contributors and their accepted answers to questions.">
+  <meta name="description" content="The most reputable StackExchange contributors and their accepted answers to questions.">
   <meta name="author" content="Nirvana Tikku">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -74,6 +74,12 @@
           <a class="brand" href="/">Stack-Ed</a>
           <div class="nav-collapse collapse">
             <ul class="nav">
+              <li class="dropdown ui-site-toggle-list">
+                <a id="js-current-site" class="dropdown-toggle ui-current-site" data-toggle="dropdown" href="#"></a>
+                <ul id="js-sites-toggle" class="dropdown-menu ui-sites-toggle" role="menu" aria-labelledby="dLabel">
+                  
+                </ul>
+              </li>
               <li>
                 <a href="#about" role="button" class="" data-toggle="modal">About</a>
               </li>
@@ -117,7 +123,7 @@
   <div id="footer">
     <div class="container">
       <p class="muted credit">
-        Created by <a href="http://tikku.com">Nirvana Tikku</a>. Built in Boston. <em>Note: This site has not been optimized for Mobile (yet).</em>
+        Created by <a href="http://tikku.com">Nirvana Tikku</a>. Built in Boston. 
         <span class='pull-right'>Powered by the <a href='http://api.stackexchange.com/'>StackExchange API</a>. </span>
       </p>
     </div>
@@ -151,6 +157,9 @@
     <br/>
     <p>
       Think of Stack-Ed as an educational resource. Learn as much as you can.
+  </p>
+  <p>
+    Update: March 7th, Stack-Ed now encompasses all the various StackExchange sites.
   </p>
   </div>
   <div class="modal-footer">

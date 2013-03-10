@@ -1,6 +1,81 @@
 define(['backbone', 'stackAPI', 'text!templates/user_view.html','text!templates/question_view.html','text!templates/tag_view.html'],
     function(_backbone_, StackAPI, userViewHTML, questionViewHTML,tagViewHTML){
 
+    var StackSite = Backbone.Model.extend({
+        defaults: {
+          "site_type": "main_site",
+          "name": "Stack Overflow",
+          "logo_url": "http://cdn.sstatic.net/stackoverflow/img/logo.png",
+          "api_site_parameter": "stackoverflow",
+          "site_url": "http://stackoverflow.com",
+          "audience": "professional and enthusiast programmers",
+          "icon_url": "http://cdn.sstatic.net/stackoverflow/img/apple-touch-icon.png",
+          "aliases": [
+            "http://www.stackoverflow.com"
+          ],
+          "site_state": "normal",
+          "styling": {
+            "link_color": "#0077CC",
+            "tag_foreground_color": "#3E6D8E",
+            "tag_background_color": "#E0EAF1"
+          },
+          "launch_date": 1221436800,
+          "favicon_url": "http://cdn.sstatic.net/stackoverflow/img/favicon.ico",
+          "related_sites": [
+            {
+              "name": "Stack Overflow Chat",
+              "site_url": "http://chat.stackoverflow.com",
+              "relation": "chat"
+            }
+          ],
+          "markdown_extensions": [
+            "Prettify"
+          ],
+          "high_resolution_icon_url": "http://cdn.sstatic.net/stackoverflow/img/apple-touch-icon@2.png"
+        }
+    });
+
+    var StackSites = Backbone.Collection.extend({
+        model: StackSite
+    });
+
+    var StackSiteView = Backbone.View.extend({
+        tagName: "li",
+        className: "ui-stack-site",
+        template: _.template("<a><img class='ui-site-icon' src='<%= high_resolution_icon_url ? high_resolution_icon_url : icon_url%>'> <%= name %></a>"),
+        initialize:function(){},
+        events:{
+            "click": function(evt){
+                this.trigger("pick_site", this.model);
+            }
+        },
+        render:function(){
+            this.$el.html( this.template(this.model.toJSON()) );
+            return this;
+        }
+    });
+
+    var StackSitesView = Backbone.View.extend({
+        initialize:function(){
+
+        },
+        render:function(){
+            var site, sv, self = this;
+            for(var i=0; i<this.collection.length; i++){
+                site = this.collection.models[i];
+                sv = new StackSiteView({model: site});
+                sv.on("pick_site",function(){
+                    var site = this;
+                    (function(){
+                        self.trigger("pick_site",site.model);
+                    })();
+                });
+                this.$el.append( sv.render().el );
+            }
+            return this;
+        }
+    });
+
     /**
         All the StackOverflow integration into the site
     */
@@ -77,6 +152,7 @@ define(['backbone', 'stackAPI', 'text!templates/user_view.html','text!templates/
             if('owner' in response){
                 this.set("owner", new StackUser(response['owner']));
             }
+            // console.log(this);
             return response;
         }
 
@@ -194,7 +270,7 @@ define(['backbone', 'stackAPI', 'text!templates/user_view.html','text!templates/
             }
         },
         events:{
-            "click .tag-selection":function(evt){
+            "click":function(evt){
                 this.trigger("select", this.model);
                 this.setSelected(true);
             }
@@ -302,7 +378,10 @@ define(['backbone', 'stackAPI', 'text!templates/user_view.html','text!templates/
         StackTag: StackTag,
         StackTags: StackTags,
         StackTagView: StackTagView,
-        StackResponse: StackResponse
+        StackResponse: StackResponse,
+        StackSite: StackSite,
+        StackSites: StackSites,
+        StackSitesView: StackSitesView
     };
 
 });
