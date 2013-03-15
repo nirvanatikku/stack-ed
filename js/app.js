@@ -20,7 +20,7 @@ define(['backbone'],function(){
             view: undefined
         },
         currentSiteIconHTML: function(){
-            return "<img class='ui-site-icon' src='"+this.get("site").get('high_resolution_icon_url')+"'/>";
+            return "<img class='ui-site-icon' src='"+this.get("site").getIconURL()+"'/>";
         },
         initialize:function(incoming){
             _.bindAll(this, 'currentSiteIconHTML');

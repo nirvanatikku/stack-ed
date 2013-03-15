@@ -1,37 +1,32 @@
-define(['backbone', 'stackAPI', 'text!templates/user_view.html','text!templates/question_view.html','text!templates/tag_view.html'],
-    function(_backbone_, StackAPI, userViewHTML, questionViewHTML,tagViewHTML){
+define(['backbone', 'stackAPI', 'text!templates/user_view.html','text!templates/question_view.html','text!templates/tag_view.html','text!templates/site_view.html'],
+    function(_backbone_, StackAPI, userViewHTML, questionViewHTML,tagViewHTML,siteViewHTML){
 
     var StackSite = Backbone.Model.extend({
         defaults: {
-          "site_type": "main_site",
-          "name": "Stack Overflow",
-          "logo_url": "http://cdn.sstatic.net/stackoverflow/img/logo.png",
-          "api_site_parameter": "stackoverflow",
-          "site_url": "http://stackoverflow.com",
-          "audience": "professional and enthusiast programmers",
-          "icon_url": "http://cdn.sstatic.net/stackoverflow/img/apple-touch-icon.png",
-          "aliases": [
-            "http://www.stackoverflow.com"
-          ],
-          "site_state": "normal",
+          "site_type": "",
+          "name": "",
+          "logo_url": "",
+          "api_site_parameter": "",
+          "site_url": "",
+          "audience": "",
+          // "icon_url": undefined,
+          "aliases": [],
+          "site_state": "",
           "styling": {
-            "link_color": "#0077CC",
-            "tag_foreground_color": "#3E6D8E",
-            "tag_background_color": "#E0EAF1"
+            "link_color": "",
+            "tag_foreground_color": "",
+            "tag_background_color": ""
           },
-          "launch_date": 1221436800,
-          "favicon_url": "http://cdn.sstatic.net/stackoverflow/img/favicon.ico",
-          "related_sites": [
-            {
-              "name": "Stack Overflow Chat",
-              "site_url": "http://chat.stackoverflow.com",
-              "relation": "chat"
-            }
-          ],
-          "markdown_extensions": [
-            "Prettify"
-          ],
-          "high_resolution_icon_url": "http://cdn.sstatic.net/stackoverflow/img/apple-touch-icon@2.png"
+          "launch_date": 0,
+          "favicon_url": "",
+          "related_sites": [],
+          "markdown_extensions": []
+          // "high_resolution_icon_url": 
+        },
+        getIconURL:function(){
+            var ret = this.get("high_resolution_icon_url");
+            if(ret) return ret;
+            return this.get("icon_url");
         }
     });
 
@@ -42,7 +37,7 @@ define(['backbone', 'stackAPI', 'text!templates/user_view.html','text!templates/
     var StackSiteView = Backbone.View.extend({
         tagName: "li",
         className: "ui-stack-site",
-        template: _.template("<a><img class='ui-site-icon' src='<%= high_resolution_icon_url ? high_resolution_icon_url : icon_url%>'> <%= name %></a>"),
+        template: _.template(siteViewHTML),
         initialize:function(){},
         events:{
             "click": function(evt){
@@ -50,7 +45,9 @@ define(['backbone', 'stackAPI', 'text!templates/user_view.html','text!templates/
             }
         },
         render:function(){
-            this.$el.html( this.template(this.model.toJSON()) );
+            var json = this.model.toJSON();
+            json['site_icon_url'] = this.model.getIconURL();
+            this.$el.html( this.template(json) );
             return this;
         }
     });
