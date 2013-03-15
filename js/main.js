@@ -453,6 +453,7 @@ require(["stackComponents","app","moment","bootstrap","underscore"], function(co
                 });
                 App.view.sites.render();
                 App.view.sites.on("pick_site",function(site){
+                    trackEvt("Site","Pick_Site",site);
                     App.router.routeTo("site/"+site.get("api_site_parameter"));
                 });
             }).done(function(){
@@ -511,6 +512,7 @@ require(["stackComponents","app","moment","bootstrap","underscore"], function(co
                 });
             }
             this.app.set("site", this.app.sites.where({api_site_parameter:decodeURIComponent(site || StackAPI.DEFAULT_SITE)})[0]);
+            trackEvt("Site", "Route", site || StackAPI.DEFAULT_SITE);
             this.tagsRoute(site, true);
         },
         tagsRoute: function(site, is_fresh_set){
